@@ -49,14 +49,16 @@ target_include_directories(
 target_sources(
 	${PROJECT_NAME}
 	PUBLIC
-
-	PRIVATE
 		include/uart.h
-		src/init.c
+	PRIVATE
+		src/structure.h
+		src/instance.c
+		src/configure.c
+		src/transfer.c
 )
 
 target_link_libraries(
 	${PROJECT_NAME}
-	PUBLIC
+	PRIVATE
 		Buffers
 )

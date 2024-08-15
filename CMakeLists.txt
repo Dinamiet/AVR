@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.20.0)
 
+project(
+	ATMega328P
+)
+
 # Doxygen document generation
 find_package(Doxygen)
 if (DOXYGEN_FOUND AND NOT DOXYGEN_IN)
