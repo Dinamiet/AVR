@@ -19,8 +19,8 @@ typedef struct _UART_
 {
 	volatile UARTMemory* Registers;
 	volatile uint8_t*    PWR;
-	FifoBuffer           TXBuffer;
-	FifoBuffer           RXBuffer;
+	FifoBuffer           RxBuffer;
+	FifoBuffer           TxBuffer;
 } UART;
 
 #endif

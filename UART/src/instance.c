@@ -1,6 +1,8 @@
 #include "structure.h"
 #include "uart.h"
 
+#include <avr/io.h>
+
 static UART instances[] = {
 		{.Registers = (UARTMemory*)&UCSR0A, .PWR = &PRR},
 };

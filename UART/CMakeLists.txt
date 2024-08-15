@@ -55,6 +55,7 @@ target_sources(
 		src/instance.c
 		src/configure.c
 		src/transfer.c
+		src/interrupt.c
 )
 
 target_link_libraries(
