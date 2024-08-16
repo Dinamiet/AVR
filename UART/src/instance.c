@@ -3,8 +3,16 @@
 
 #include <avr/io.h>
 
-static UART instances[] = {
-		{.Registers = (UARTMemory*)&UCSR0A, .PWR = &PRR},
-};
+static UART uart0 = {.Registers = (UARTMemory*)&UCSR0A, .PWR = &PRR};
 
-UART* UART_GetInstance(UARTInstance instance) { return &instances[instance]; }
+UART* UART_GetInstance(UARTInstance instance)
+{
+	switch (instance)
+	{
+		case UART0:
+			return &uart0;
+
+		default:
+			return NULL;
+	}
+}
