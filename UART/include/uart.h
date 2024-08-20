@@ -16,9 +16,9 @@
  */
 typedef enum _UARTParity_
 {
-	UART_PARITY_NONE, /** No parity */
-	UART_PARITY_ODD,  /** Odd parity */
-	UART_PARITY_EVEN, /** Even parity */
+	UART_PARITY_NONE = 0, /** No parity */
+	UART_PARITY_EVEN = 2, /** Even parity */
+	UART_PARITY_ODD  = 3, /** Odd parity */
 } UARTParity;
 
 /**

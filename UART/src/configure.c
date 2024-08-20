@@ -50,9 +50,14 @@ void UART_SetBaud(const UART* uart, const uint32_t baud)
 
 void UART_SetFormat(const UART* uart, const size_t dataBits, const UARTParity parity, const size_t stopBits)
 {
-	(void)dataBits;
-	(void)stopBits;
-	(void)parity;
+	(void)dataBits; /** TODO: Check data bits within range */
+	(void)stopBits; /** TODO: Check stop bits within range */
+	(void)parity;   /** TODO: Check parity */
 
-	uart->Registers->StatusC = 0x06; /** TODO: Check datasheet for actual calculations */
+	uint8_t registerVal = 0;
+	registerVal |= (dataBits - 5) << UCSZ00;
+	registerVal |= (stopBits - 1) << USBS0;
+	registerVal |= parity << UPM00;
+
+	uart->Registers->StatusC = registerVal;
 }
