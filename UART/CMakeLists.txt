@@ -1,15 +1,11 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-project(
+add_library(
 	UART
 )
 
-add_library(
-	${PROJECT_NAME}
-)
-
 target_compile_options(
-	${PROJECT_NAME}
+	UART
 	PRIVATE
 		"-Wall" # Enable all common warnings
 		"-Wextra" # Enable more warnings
@@ -33,7 +29,7 @@ target_compile_options(
 )
 
 target_link_options(
-	${PROJECT_NAME}
+	UART
 	PRIVATE
 		"-Wl,--gc-sections" # Remove unwanted/unused sections
 		"-flto" # Link time optimization
@@ -41,13 +37,13 @@ target_link_options(
 )
 
 target_include_directories(
-	${PROJECT_NAME}
+	UART
 	PUBLIC
 		include
 )
 
 target_sources(
-	${PROJECT_NAME}
+	UART
 	PUBLIC
 		include/uart.h
 	PRIVATE
@@ -59,7 +55,7 @@ target_sources(
 )
 
 target_link_libraries(
-	${PROJECT_NAME}
+	UART
 	PRIVATE
 		Buffers
 )
