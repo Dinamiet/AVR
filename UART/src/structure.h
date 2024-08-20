@@ -17,10 +17,10 @@ typedef struct _UARTMemory_
 
 typedef struct _UART_
 {
-	volatile UARTMemory* Registers;
-	volatile uint8_t*    PWR;
-	FifoBuffer           RxBuffer;
-	FifoBuffer           TxBuffer;
+	volatile UARTMemory* const Registers;
+	volatile uint8_t* const    PWR;
+	FifoBuffer                 RxBuffer;
+	FifoBuffer                 TxBuffer;
 } UART;
 
 #endif

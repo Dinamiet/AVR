@@ -18,14 +18,14 @@ typedef enum _UARTInstance_
 
 typedef struct _UART_ UART;
 
-UART*  UART_GetInstance(UARTInstance instance);
-void   UART_Init(UART* uart, void* rxBuff, size_t rxSize, void* txBuff, size_t txSize);
-void   UART_Enable(UART* uart);
-void   UART_Disable(UART* uart);
-void   UART_SetBaud(UART* uart, uint32_t baud);
-void   UART_SetFormat(UART* uart, size_t dataBits, UARTParity parity, size_t stopBits);
-size_t UART_Write(UART* uart, void* data, size_t size);
-size_t UART_Read(UART* uart, void* data, size_t size);
-bool   UART_IsBusy(UART* uart);
+UART*  UART_GetInstance(const UARTInstance instance);
+void   UART_Init(UART* uart, void* rxBuff, const size_t rxSize, void* txBuff, const size_t txSize);
+void   UART_Enable(const UART* uart);
+void   UART_Disable(const UART* uart);
+void   UART_SetBaud(const UART* uart, const uint32_t baud);
+void   UART_SetFormat(const UART* uart, const size_t dataBits, const UARTParity parity, const size_t stopBits);
+size_t UART_Write(UART* uart, const void* data, const size_t size);
+size_t UART_Read(UART* uart, void* data, const size_t size);
+bool   UART_IsBusy(const UART* uart);
 
 #endif

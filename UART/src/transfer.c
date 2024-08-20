@@ -3,10 +3,10 @@
 
 #include <avr/io.h>
 
-size_t UART_Write(UART* uart, void* _data, size_t size)
+size_t UART_Write(UART* uart, const void* _data, const size_t size)
 {
-	uint8_t* data    = _data;
-	size_t   written = 0;
+	const uint8_t* data    = _data;
+	size_t         written = 0;
 
 	uart->Registers->StatusB &= ~(1 << UDRE0); // Disable TX interrupt
 
@@ -24,7 +24,7 @@ size_t UART_Write(UART* uart, void* _data, size_t size)
 	return written;
 }
 
-size_t UART_Read(UART* uart, void* _data, size_t size)
+size_t UART_Read(UART* uart, void* _data, const size_t size)
 {
 	uint8_t* data = _data;
 	size_t   read = 0;
@@ -45,7 +45,7 @@ size_t UART_Read(UART* uart, void* _data, size_t size)
 	return read;
 }
 
-bool UART_IsBusy(UART* uart)
+bool UART_IsBusy(const UART* uart)
 {
 	return (uart->Registers->StatusB & (1 << UDRE0)); // Active if TX interrupt is enabled
 }

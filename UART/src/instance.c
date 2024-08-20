@@ -5,7 +5,7 @@
 
 static UART uart0 = {.Registers = (UARTMemory*)&UCSR0A, .PWR = &PRR};
 
-UART* UART_GetInstance(UARTInstance instance)
+UART* UART_GetInstance(const UARTInstance instance)
 {
 	switch (instance)
 	{

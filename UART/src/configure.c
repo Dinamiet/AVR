@@ -4,13 +4,13 @@
 #include <avr/io.h>
 #include <stdlib.h>
 
-void UART_Init(UART* uart, void* rxBuff, size_t rxSize, void* txBuff, size_t txSize)
+void UART_Init(UART* uart, void* rxBuff, const size_t rxSize, void* txBuff, const size_t txSize)
 {
 	FifoBuffer_Init(&uart->RxBuffer, rxBuff, sizeof(uint8_t), rxSize);
 	FifoBuffer_Init(&uart->TxBuffer, txBuff, sizeof(uint8_t), txSize);
 }
 
-void UART_Enable(UART* uart)
+void UART_Enable(const UART* uart)
 {
 	uint8_t registerSetup = 1 << RXEN0; // Receiver
 	registerSetup |= 1 << TXEN0;        // Transmitter
@@ -21,7 +21,7 @@ void UART_Enable(UART* uart)
 	*uart->PWR &= ~(1 << PRUSART0); /// Power on HW
 }
 
-void UART_Disable(UART* uart)
+void UART_Disable(const UART* uart)
 {
 	uint8_t registerSetup = 1 << RXEN0; // Receiver
 	registerSetup |= 1 << TXEN0;        // Transmitter
@@ -32,7 +32,7 @@ void UART_Disable(UART* uart)
 	*uart->PWR |= (1 << PRUSART0); // Power off HW
 }
 
-void UART_SetBaud(UART* uart, uint32_t baud)
+void UART_SetBaud(const UART* uart, const uint32_t baud)
 {
 	// Best BAUD setting
 	uint16_t UBRR_slow = (F_CPU / (baud * 16)) - 1;
@@ -48,7 +48,7 @@ void UART_SetBaud(UART* uart, uint32_t baud)
 	uart->Registers->StatusA  = useFast << U2X0; // Enable/Disable fast mode
 }
 
-void UART_SetFormat(UART* uart, size_t dataBits, UARTParity parity, size_t stopBits)
+void UART_SetFormat(const UART* uart, const size_t dataBits, const UARTParity parity, const size_t stopBits)
 {
 	(void)dataBits;
 	(void)stopBits;
