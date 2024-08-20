@@ -18,7 +18,7 @@ void UART_Enable(UART* uart)
 
 	uart->Registers->StatusB = registerSetup;
 
-	*uart->PWR &= (uint8_t)(~(1 << PRUSART0)); /// Power on HW
+	*uart->PWR &= ~(1 << PRUSART0); /// Power on HW
 }
 
 void UART_Disable(UART* uart)
@@ -32,23 +32,23 @@ void UART_Disable(UART* uart)
 	*uart->PWR |= (1 << PRUSART0); // Power off HW
 }
 
-void UART_SetBaud(UART* uart, int baud)
+void UART_SetBaud(UART* uart, uint32_t baud)
 {
 	// Best BAUD setting
-	int UBRR_slow = ((int)F_CPU / (baud * 16)) - 1;
-	int UBRR_fast = ((int)F_CPU / (baud * 8)) - 1;
+	uint16_t UBRR_slow = (F_CPU / (baud * 16)) - 1;
+	uint16_t UBRR_fast = (F_CPU / (baud * 8)) - 1;
 
-	int baud_slow = (int)F_CPU / (16 * (UBRR_slow + 1));
-	int baud_fast = (int)F_CPU / (8 * (UBRR_fast + 1));
+	uint32_t baud_slow = F_CPU / (16 * (UBRR_slow + 1));
+	uint32_t baud_fast = F_CPU / (8 * (UBRR_fast + 1));
 
 	// Fast or slow lowest error rate
 	uint8_t useFast = abs(baud - baud_fast) < abs(baud - baud_slow);
 
-	uart->Registers->BaudRate = useFast ? (uint16_t)UBRR_fast : (uint16_t)UBRR_slow;
+	uart->Registers->BaudRate = useFast ? UBRR_fast : UBRR_slow;
 	uart->Registers->StatusA  = useFast << U2X0; // Enable/Disable fast mode
 }
 
-void UART_SetFormat(UART* uart, size_t dataBits, size_t stopBits, UARTParity parity)
+void UART_SetFormat(UART* uart, size_t dataBits, UARTParity parity, size_t stopBits)
 {
 	(void)dataBits;
 	(void)stopBits;

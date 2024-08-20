@@ -11,7 +11,7 @@ ISR(USART_UDRE_vect)
 	if (data)
 		uart->Registers->Data = *data;
 	else
-		uart->Registers->StatusB &= (uint8_t) ~(1 << UDRE0); // Disable TX interrupt
+		uart->Registers->StatusB &= ~(1 << UDRE0); // Disable TX interrupt
 }
 
 // RX Ready interrupt handler
