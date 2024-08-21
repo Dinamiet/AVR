@@ -4,13 +4,7 @@
 #include <avr/io.h>
 #include <stdlib.h>
 
-void UART_Init(UART* uart, void* rxBuff, const size_t rxSize, void* txBuff, const size_t txSize)
-{
-	FifoBuffer_Init(&uart->RxBuffer, rxBuff, sizeof(uint8_t), rxSize);
-	FifoBuffer_Init(&uart->TxBuffer, txBuff, sizeof(uint8_t), txSize);
-}
-
-void UART_Enable(const UART* uart)
+void UART_Init(UART* uart)
 {
 	uint8_t registerSetup = 1 << RXEN0; // Receiver
 	registerSetup |= 1 << TXEN0;        // Transmitter
@@ -21,7 +15,7 @@ void UART_Enable(const UART* uart)
 	*uart->PWR &= ~(1 << PRUSART0); /// Power on HW
 }
 
-void UART_Disable(const UART* uart)
+void UART_Deinit(UART* uart)
 {
 	uint8_t registerSetup = 1 << RXEN0; // Receiver
 	registerSetup |= 1 << TXEN0;        // Transmitter
@@ -31,6 +25,10 @@ void UART_Disable(const UART* uart)
 
 	*uart->PWR |= (1 << PRUSART0); // Power off HW
 }
+
+void UART_AssignRxBuffer(UART* uart, uint8_t* buff, const size_t size) { FifoBuffer_Init(&uart->RxBuffer, buff, sizeof(*buff), size); }
+
+void UART_AssignTxBuffer(UART* uart, uint8_t* buff, const size_t size) { FifoBuffer_Init(&uart->TxBuffer, buff, sizeof(*buff), size); }
 
 void UART_SetBaud(const UART* uart, const uint32_t baud)
 {

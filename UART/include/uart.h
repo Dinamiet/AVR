@@ -42,26 +42,32 @@ typedef struct _UART_ UART;
 UART* UART_GetInstance(const UARTInstance instance);
 
 /**
- * Initialize UART with data buffers
- * \param uart UART instance initialize
- * \param rxBuff Receive storage buffer
- * \param rxSize Size of the receive buffer (bytes)
- * \param txBuff Transmit storage buffer
- * \param txSize Size of the transmit buffer (bytes)
+ * Initialize and power-on UART hardware
+ * \param uart UART to initialize
  */
-void UART_Init(UART* uart, void* rxBuff, const size_t rxSize, void* txBuff, const size_t txSize);
+void UART_Init(UART* uart);
 
 /**
- * Enables UART for operation
- * \param uart UART to enable
+ * Deinitialize and power-off UART hardware
+ * \param uart UART to deinitialize
  */
-void UART_Enable(const UART* uart);
+void UART_Deinit(UART* uart);
 
 /**
- * Disables UART operation
- * \param uart UART to disable
+ * Assign receive buffer to the UART
+ * \param uart UART to assign buffer too
+ * \param buff Buffer
+ * \param size Size of the buffer (bytes)
  */
-void UART_Disable(const UART* uart);
+void UART_AssignRxBuffer(UART* uart, uint8_t* buff, const size_t size);
+
+/**
+ * Assign transmit buffer to the UART
+ * \param uart UART to assign buffer too
+ * \param buff Buffer
+ * \param size Size of the buffer (bytes)
+ */
+void UART_AssignTxBuffer(UART* uart, uint8_t* buff, const size_t size);
 
 /**
  * Sets the UART BAUD rate to the specified rate
