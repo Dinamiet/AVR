@@ -1,11 +1,14 @@
 #include "structure.h"
 #include "uart.h"
 
+#include <assert.h>
 #include <avr/io.h>
 #include <stdlib.h>
 
 void UART_Init(UART* uart)
 {
+	assert(uart != NULL);
+
 	uint8_t registerSetup = 1 << RXEN0; // Receiver
 	registerSetup |= 1 << TXEN0;        // Transmitter
 	registerSetup |= 1 << RXC0;         // RX interrupt
@@ -17,6 +20,8 @@ void UART_Init(UART* uart)
 
 void UART_Deinit(UART* uart)
 {
+	assert(uart != NULL);
+
 	uint8_t registerSetup = 1 << RXEN0; // Receiver
 	registerSetup |= 1 << TXEN0;        // Transmitter
 	registerSetup |= 1 << RXC0;         // RX Interrupt
@@ -26,12 +31,24 @@ void UART_Deinit(UART* uart)
 	*uart->PWR |= (1 << PRUSART0); // Power off HW
 }
 
-void UART_AssignRxBuffer(UART* uart, uint8_t* buff, const size_t size) { FifoBuffer_Init(&uart->RxBuffer, buff, sizeof(*buff), size); }
+void UART_AssignRxBuffer(UART* uart, uint8_t* buff, const size_t size)
+{
+	assert(uart != NULL);
 
-void UART_AssignTxBuffer(UART* uart, uint8_t* buff, const size_t size) { FifoBuffer_Init(&uart->TxBuffer, buff, sizeof(*buff), size); }
+	FifoBuffer_Init(&uart->RxBuffer, buff, sizeof(*buff), size);
+}
+
+void UART_AssignTxBuffer(UART* uart, uint8_t* buff, const size_t size)
+{
+	assert(uart != NULL);
+
+	FifoBuffer_Init(&uart->TxBuffer, buff, sizeof(*buff), size);
+}
 
 void UART_SetBaud(const UART* uart, const uint32_t baud)
 {
+	assert(uart != NULL);
+
 	// Best BAUD setting
 	uint16_t UBRR_slow = (F_CPU / (baud * 16)) - 1;
 	uint16_t UBRR_fast = (F_CPU / (baud * 8)) - 1;
@@ -48,9 +65,9 @@ void UART_SetBaud(const UART* uart, const uint32_t baud)
 
 void UART_SetFormat(const UART* uart, const size_t dataBits, const UARTParity parity, const size_t stopBits)
 {
-	(void)dataBits; /** TODO: Check data bits within range */
-	(void)stopBits; /** TODO: Check stop bits within range */
-	(void)parity;   /** TODO: Check parity */
+	assert(uart != NULL);
+	assert(dataBits > 4 && dataBits < 9);
+	assert(stopBits < 2);
 
 	uint8_t registerVal = 0;
 	registerVal |= (dataBits - 5) << UCSZ00;
