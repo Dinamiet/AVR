@@ -1,12 +1,13 @@
 #include "structure.h"
 #include "uart.h"
 
+#include <assert.h>
 #include <avr/io.h>
 
 size_t UART_Write(UART* uart, const void* _data, const size_t size)
 {
 	assert(uart != NULL);
-	assert(data != NULL);
+	assert(_data != NULL);
 
 	const uint8_t* data    = _data;
 	size_t         written = 0;
@@ -30,7 +31,7 @@ size_t UART_Write(UART* uart, const void* _data, const size_t size)
 size_t UART_Read(UART* uart, void* _data, const size_t size)
 {
 	assert(uart != NULL);
-	assert(data != NULL);
+	assert(_data != NULL);
 
 	uint8_t* data = _data;
 	size_t   read = 0;
