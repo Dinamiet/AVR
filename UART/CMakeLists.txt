@@ -4,6 +4,11 @@ add_library(
 	UART
 )
 
+option(UART_ENABLE_9BIT "Enable 9bit mode UART" OFF)
+if (UART_ENABLE_9BIT)
+	target_compile_definitions(UART PRIVATE UART_ENABLE_9BIT)
+endif()
+
 target_compile_options(
 	UART
 	PRIVATE

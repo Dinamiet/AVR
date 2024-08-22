@@ -66,7 +66,11 @@ void UART_SetBaud(const UART* uart, const uint32_t baud)
 void UART_SetFormat(const UART* uart, const size_t dataBits, const UARTParity parity, const size_t stopBits)
 {
 	assert(uart != NULL);
+#ifdef UART_ENABLE_9BIT
+	assert(dataBits > 4 && dataBits < 10);
+#else
 	assert(dataBits > 4 && dataBits < 9);
+#endif
 	assert(stopBits < 2);
 
 	uint8_t registerVal = 0;
