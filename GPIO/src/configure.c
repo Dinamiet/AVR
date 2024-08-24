@@ -1,19 +1,24 @@
 #include "gpio.h"
 #include "structure.h"
 
+#include <assert.h>
+#include <stddef.h>
+
 void GPIO_Init(GPIO* gpio)
 {
-	(void)gpio;
+	assert(gpio != NULL);
 	// Power on hardware?
 }
 void GPIO_Deinit(GPIO* gpio)
 {
-	(void)gpio;
+	assert(gpio != NULL);
 	// Power off hardware?
 }
 
 void GPIO_SetMode(GPIO* gpio, uint8_t mask, GPIOMode mode)
 {
+	assert(gpio != NULL);
+
 	switch (mode)
 	{
 		case GPIO_MODE_INPUT_PULLUP:
@@ -34,4 +39,9 @@ void GPIO_SetMode(GPIO* gpio, uint8_t mask, GPIOMode mode)
 	}
 }
 
-void GPIO_SetModePin(GPIO* gpio, uint8_t pinNum, GPIOMode mode) { GPIO_SetMode(gpio, 1 << pinNum, mode); }
+void GPIO_SetModePin(GPIO* gpio, uint8_t pinNum, GPIOMode mode)
+{
+	assert(gpio != NULL);
+
+	GPIO_SetMode(gpio, 1 << pinNum, mode);
+}

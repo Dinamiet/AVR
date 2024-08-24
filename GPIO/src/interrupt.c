@@ -1,6 +1,7 @@
 #include "gpio.h"
 #include "structure.h"
 
+#include <assert.h>
 #include <avr/interrupt.h>
 #include <stddef.h>
 
@@ -9,6 +10,9 @@ static GPIO_InterruptFunction isr1 = NULL;
 
 void GPIO_EnableIRQ(GPIOInstance instance, GPIOInterruptTrigger trigger, GPIO_InterruptFunction isr)
 {
+	assert(trigger <= 0x03);
+	assert(isr != NULL);
+
 	uint8_t value = EICRA;
 	switch (instance)
 	{
