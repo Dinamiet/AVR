@@ -26,3 +26,4 @@ endif()
 
 add_subdirectory(lib)
 add_subdirectory(UART)
+add_subdirectory(GPIO)
