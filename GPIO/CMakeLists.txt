@@ -18,7 +18,7 @@ target_compile_options(
 		"-Wformat-truncation" # printf and scanf warnings
 		"-Wundef" # Warn when evaluating not defined flags
 		"-fno-common" # Warn about multiple global variables with the same name
-		"-Wconversion" # Warn about implicit conversions
+		# "-Wconversion" # Warn about implicit conversions
 		"-Wuninitialized" # Warn about uninitialized’ variables
 		"-Wpadded" # Warn about padded structures
 		"-flto" # Link time optimization
@@ -47,5 +47,9 @@ target_sources(
 	PUBLIC
 		include/gpio.h
 	PRIVATE
-
+		src/configure.c
+		src/instance.c
+		src/interrupt.c
+		src/io.c
+		src/structure.h
 )
