@@ -1,19 +1,48 @@
 #ifndef _I2C_H_
 #define _I2C_H_
 
-void I2C_GetInstance();
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
-void I2C_Init();
-void I2C_Deinit();
+typedef void (*I2CRequestComplete)(void*);
 
-void I2C_AssignTransactionBuffer();
-void I2C_AssignWriteBuffer();
+typedef struct _I2CTransaction_
+{
+	union
+	{
+		uint8_t ControlByte;
+		struct
+		{
+			uint8_t Action  : 1;
+			uint8_t Address : 7;
+		};
+	};
+	size_t             Size;
+	I2CRequestComplete Handler;
+	void*              Data;
+} I2CTransaction;
 
-void I2C_SetBaud();
+typedef enum _I2CInstance_
+{
+	I2C0,
+} I2CInstance;
 
-void I2C_Read();  // addr, data, size, stop
-void I2C_Write(); // addr, callback, size, stop
+typedef struct _I2C_ I2C;
 
-void I2C_IsBusy();
+I2C* I2C_GetInstance(I2CInstance instance);
+
+void I2C_Init(I2C* i2c);
+void I2C_Deinit(I2C* i2c);
+
+void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, size_t size);
+void I2C_AssignWriteBuffer(I2C* i2c, uint8_t* buff, size_t size);
+
+void I2C_SetBaud(I2C* i2c, uint32_t baud);
+
+size_t I2C_Read(I2C* i2c, uint8_t addr, I2CRequestComplete handler, void* data, size_t size);
+size_t I2C_Write(I2C* i2c, uint8_t addr, void* data, size_t size);
+
+bool I2C_IsBusy(I2C* i2c);
 
 #endif
