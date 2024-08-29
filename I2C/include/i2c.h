@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef void (*I2CRequestComplete)(void*);
+typedef void (*I2CRequestComplete)(uint8_t addr, size_t size);
 
 typedef struct _I2CTransaction_
 {
@@ -19,8 +19,7 @@ typedef struct _I2CTransaction_
 		};
 	};
 	size_t             Size;
-	I2CRequestComplete Handler;
-	void*              Data;
+	I2CRequestComplete Complete;
 } I2CTransaction;
 
 typedef enum _I2CInstance_

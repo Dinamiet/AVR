@@ -4,33 +4,34 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
-static void newTransaction(I2C* i2c, I2CTransaction* newTrans);
+static size_t newTransaction(I2C* i2c, I2CTransaction* newTrans);
 
-static void newTransaction(I2C* i2c, I2CTransaction* newTrans)
+static size_t newTransaction(I2C* i2c, I2CTransaction* newTrans)
 {
 	I2CTransaction* tmp = FifoBuffer_Remove(&i2c->TransBuffer);
 
 	newTrans->Size = 0;
 	if (tmp)
 	{
-		newTrans->ControlByte = tmp->ControlByte;
-		newTrans->Size        = tmp->Size;
-		newTrans->Handler     = tmp->Handler;
-		newTrans->Data        = tmp->Data;
+		*newTrans = *tmp;
 	}
+
+	return 0;
 }
 
 ISR(TWI_vect)
 {
 	I2C*                  i2c          = I2C_GetInstance(I2C0);
 	uint8_t               controlValue = i2c->Registers->Control;
-	static uint8_t*       data;
+	uint8_t*              bufferElement;
+	uint8_t               data;
+	static size_t         transfered = 0;
 	static I2CTransaction activeTransaction;
 
 	switch (TW_STATUS)
 	{
 		case TW_START:
-			newTransaction(i2c, &activeTransaction);
+			transfered = newTransaction(i2c, &activeTransaction);
 			// Fall through
 		case TW_REP_START:
 			i2c->Active = true;
@@ -42,25 +43,22 @@ ISR(TWI_vect)
 				i2c->Active = false;
 				break;
 			}
-
-			data                 = activeTransaction.Data;
 			i2c->Registers->Data = activeTransaction.ControlByte;
 			break;
 
 		case TW_MT_SLA_ACK: // Fall through
 		case TW_MT_DATA_ACK:
-			if (activeTransaction.Size > 0)
+			if (transfered++ < activeTransaction.Size)
 			{
-				--activeTransaction.Size;
-				data = FifoBuffer_Remove(&i2c->TXBuffer);
-				if (data)
-					i2c->Registers->Data = *data;
+				bufferElement = FifoBuffer_Remove(&i2c->TXBuffer);
+				if (bufferElement)
+					i2c->Registers->Data = *bufferElement;
 			}
 			else // Done with current transaction no more data to write
 			{
-				if (activeTransaction.Handler)
-					activeTransaction.Handler(activeTransaction.Data);
-				newTransaction(i2c, &activeTransaction);
+				if (activeTransaction.Complete)
+					activeTransaction.Complete(activeTransaction.Address, transfered);
+				transfered = newTransaction(i2c, &activeTransaction);
 				if (activeTransaction.Size)     // Next transaction available
 					controlValue |= 1 << TWSTA; // Send repeated start
 				else                            // No next transaction available
@@ -77,16 +75,18 @@ ISR(TWI_vect)
 			break;
 
 		case TW_MR_DATA_ACK: // Fall through
-		case TW_MR_DATA_NACK:
-			*data++ = i2c->Registers->Data;
-			--activeTransaction.Size;
-			if (activeTransaction.Size == 1)  // next receive is last one
+			data          = i2c->Registers->Data; // Force read
+			bufferElement = FifoBuffer_Add(&i2c->RXBuffer);
+			if (bufferElement)
+				*bufferElement = data;
+			transfered++;
+			if (activeTransaction.Size - transfered == 1) // next receive is last one
 				controlValue &= ~(1 << TWEA); // Disable ACK
-			else if (activeTransaction.Size == 0)
+			else if (activeTransaction.Size == transfered)
 			{
-				if (activeTransaction.Handler)
-					activeTransaction.Handler(activeTransaction.Data);
-				newTransaction(i2c, &activeTransaction);
+				if (activeTransaction.Complete)
+					activeTransaction.Complete(activeTransaction.Address, transfered);
+				transfered = newTransaction(i2c, &activeTransaction);
 				if (activeTransaction.Size)     // Next transaction available
 					controlValue |= 1 << TWSTA; // Send repeated start
 				else                            // No next transaction available
@@ -98,19 +98,39 @@ ISR(TWI_vect)
 			break;
 
 		case TW_MR_SLA_NACK:  // Fall through
+		case TW_MR_DATA_NACK:
+			if (activeTransaction.Complete)
+				activeTransaction.Complete(activeTransaction.Address, transfered);
+			transfered = newTransaction(i2c, &activeTransaction);
+			if (activeTransaction.Size)     // Next transaction available
+				controlValue |= 1 << TWSTA; // Send repeated start
+			else                            // No next transaction available
+			{
+				controlValue |= 1 << TWSTO; // Send stop
+				i2c->Active = false;
+			}
+			break;
+
 		case TW_MT_SLA_NACK:  // Fall through
 		case TW_MT_DATA_NACK: // Fall through
 		case TW_MT_ARB_LOST:  // Fall through
+			if (activeTransaction.Complete)
+				activeTransaction.Complete(activeTransaction.Address, transfered);
+			while (transfered++ < activeTransaction.Size) // Remove this transactions write data still in buffer
+				bufferElement = FifoBuffer_Remove(&i2c->TXBuffer);
+
+			transfered = newTransaction(i2c, &activeTransaction);
+			if (activeTransaction.Size)     // Next transaction available
+				controlValue |= 1 << TWSTA; // Send repeated start
+			else                            // No next transaction available
+			{
+				controlValue |= 1 << TWSTO; // Send stop
+				i2c->Active = false;
+			}
+			break;
+
 		default:
-			activeTransaction.Size = 0;
-			data                   = FifoBuffer_Remove(&i2c->TXBuffer);
-			while (data) // Remove all data - device NACKED
-				data = FifoBuffer_Remove(&i2c->TXBuffer);
-
-			data = FifoBuffer_Remove(&i2c->TransBuffer);
-			while (data) // Remove all pending transactions - device NACKED
-				data = FifoBuffer_Remove(&i2c->TransBuffer);
-
+			/** TODO: Assert */
 			controlValue |= 1 << TWSTO; // release interface
 			i2c->Active = false;
 			break;
