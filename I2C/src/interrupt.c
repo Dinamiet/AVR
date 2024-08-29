@@ -1,6 +1,7 @@
 #include "i2c.h"
 #include "structure.h"
 
+#include <assert.h>
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
@@ -103,7 +104,7 @@ ISR(TWI_vect)
 			break;
 
 		default: // Should never enter here, stop I2C should this happen
-			/** TODO: Assert */
+			assert(false);
 			controlValue |= 1 << TWSTO; // release interface
 			i2c->Active = false;
 			break;

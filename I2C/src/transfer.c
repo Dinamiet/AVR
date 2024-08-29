@@ -1,11 +1,15 @@
 #include "i2c.h"
 #include "structure.h"
 
+#include <assert.h>
 #include <avr/io.h>
 #include <util/twi.h>
 
 bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complete)
 {
+	assert(i2c != NULL);
+	assert(size > 0);
+
 	// Disable Interrupt?
 	I2CTransaction* transaction = FifoBuffer_Add(&i2c->TransBuffer);
 	if (!transaction)
@@ -28,6 +32,9 @@ bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complet
 
 size_t I2C_Read(I2C* i2c, void* _data, size_t size)
 {
+	assert(i2c != NULL);
+	assert(_data != NULL);
+
 	uint8_t* data = _data;
 	size_t   read;
 
@@ -50,6 +57,9 @@ size_t I2C_Read(I2C* i2c, void* _data, size_t size)
 
 size_t I2C_Write(I2C* i2c, uint8_t addr, void* _data, size_t size)
 {
+	assert(i2c != NULL);
+	assert(_data != NULL);
+
 	uint8_t*        data        = _data;
 	I2CTransaction* transaction = FifoBuffer_Add(&i2c->TransBuffer);
 	if (!transaction)
@@ -82,4 +92,9 @@ size_t I2C_Write(I2C* i2c, uint8_t addr, void* _data, size_t size)
 	return written;
 }
 
-bool I2C_IsBusy(I2C* i2c) { return i2c->Active; }
+bool I2C_IsBusy(I2C* i2c)
+{
+	assert(i2c != NULL);
+
+	return i2c->Active;
+}
