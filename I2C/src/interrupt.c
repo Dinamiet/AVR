@@ -4,19 +4,24 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
-static size_t newTransaction(I2C* i2c, I2CTransaction* newTrans);
+static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, uint8_t* transfer);
 
-static size_t newTransaction(I2C* i2c, I2CTransaction* newTrans)
+static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, uint8_t* transfer)
 {
 	I2CTransaction* tmp = FifoBuffer_Remove(&i2c->TransBuffer);
 
-	newTrans->Size = 0;
-	if (tmp)
+	*transfer = 0;
+	if (tmp) // Next transaction available
 	{
-		*newTrans = *tmp;
+		i2c->Active  = true;
+		*transaction = *tmp;
+		return 1 << TWSTA; // Issue start
 	}
-
-	return 0;
+	else
+	{
+		i2c->Active = false;
+		return 1 << TWSTO; // Release bus, done
+	}
 }
 
 ISR(TWI_vect)
@@ -31,18 +36,13 @@ ISR(TWI_vect)
 	switch (TW_STATUS)
 	{
 		case TW_START:
-			transfered = newTransaction(i2c, &activeTransaction);
 			// Fall through
 		case TW_REP_START:
-			i2c->Active = true;
+			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			controlValue &= ~(1 << TWSTA); // Clear start
 
 			if (!activeTransaction.Size)
-			{
-				controlValue |= 1 << TWSTO; // Release bus - no data waiting
-				i2c->Active = false;
 				break;
-			}
 			i2c->Registers->Data = activeTransaction.ControlByte;
 			break;
 
@@ -58,14 +58,8 @@ ISR(TWI_vect)
 			{
 				if (activeTransaction.Complete)
 					activeTransaction.Complete(activeTransaction.Address, transfered);
-				transfered = newTransaction(i2c, &activeTransaction);
-				if (activeTransaction.Size)     // Next transaction available
-					controlValue |= 1 << TWSTA; // Send repeated start
-				else                            // No next transaction available
-				{
-					controlValue |= 1 << TWSTO; // Send stop
-					i2c->Active = false;
-				}
+
+				controlValue |= nextTransaction(i2c, *activeTransaction, &transfered);
 			}
 			break;
 
@@ -74,41 +68,27 @@ ISR(TWI_vect)
 				controlValue |= 1 << TWEA;
 			break;
 
-		case TW_MR_DATA_ACK: // Fall through
+		case TW_MR_DATA_ACK:                      // Fall through
 			data          = i2c->Registers->Data; // Force read
 			bufferElement = FifoBuffer_Add(&i2c->RXBuffer);
 			if (bufferElement)
 				*bufferElement = data;
 			transfered++;
 			if (activeTransaction.Size - transfered == 1) // next receive is last one
-				controlValue &= ~(1 << TWEA); // Disable ACK
+				controlValue &= ~(1 << TWEA);             // Disable ACK
 			else if (activeTransaction.Size == transfered)
 			{
 				if (activeTransaction.Complete)
 					activeTransaction.Complete(activeTransaction.Address, transfered);
-				transfered = newTransaction(i2c, &activeTransaction);
-				if (activeTransaction.Size)     // Next transaction available
-					controlValue |= 1 << TWSTA; // Send repeated start
-				else                            // No next transaction available
-				{
-					controlValue |= 1 << TWSTO; // Send stop
-					i2c->Active = false;
-				}
+				controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			}
 			break;
 
-		case TW_MR_SLA_NACK:  // Fall through
+		case TW_MR_SLA_NACK: // Fall through
 		case TW_MR_DATA_NACK:
 			if (activeTransaction.Complete)
 				activeTransaction.Complete(activeTransaction.Address, transfered);
-			transfered = newTransaction(i2c, &activeTransaction);
-			if (activeTransaction.Size)     // Next transaction available
-				controlValue |= 1 << TWSTA; // Send repeated start
-			else                            // No next transaction available
-			{
-				controlValue |= 1 << TWSTO; // Send stop
-				i2c->Active = false;
-			}
+			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			break;
 
 		case TW_MT_SLA_NACK:  // Fall through
@@ -119,17 +99,10 @@ ISR(TWI_vect)
 			while (transfered++ < activeTransaction.Size) // Remove this transactions write data still in buffer
 				bufferElement = FifoBuffer_Remove(&i2c->TXBuffer);
 
-			transfered = newTransaction(i2c, &activeTransaction);
-			if (activeTransaction.Size)     // Next transaction available
-				controlValue |= 1 << TWSTA; // Send repeated start
-			else                            // No next transaction available
-			{
-				controlValue |= 1 << TWSTO; // Send stop
-				i2c->Active = false;
-			}
+			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			break;
 
-		default:
+		default: // Should never enter here, stop I2C should this happen
 			/** TODO: Assert */
 			controlValue |= 1 << TWSTO; // release interface
 			i2c->Active = false;
