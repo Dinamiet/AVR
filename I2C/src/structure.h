@@ -19,8 +19,9 @@ typedef struct _I2C_
 {
 	I2CMemory* const        Registers;
 	volatile uint8_t* const PWR;
-	FifoBuffer              TXBuffer;
 	FifoBuffer              TransBuffer;
+	FifoBuffer              RXBuffer;
+	FifoBuffer              TXBuffer;
 	volatile bool           Active;
 } I2C;
 

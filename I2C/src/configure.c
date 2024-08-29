@@ -25,6 +25,8 @@ void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, size_t size) { 
 
 void I2C_AssignWriteBuffer(I2C* i2c, uint8_t* buff, size_t size) { FifoBuffer_Init(&i2c->TXBuffer, buff, sizeof(*buff), size); }
 
+void I2C_AssignReadBuffer(I2C* i2c, uint8_t* buff, size_t size) { FifoBuffer_Init(&i2c->RXBuffer, buff, sizeof(*buff), size); }
+
 void I2C_SetBaud(I2C* i2c, uint32_t baud)
 {
 	i2c->Registers->BitRate = ((F_CPU / baud) - 16) / 2;
