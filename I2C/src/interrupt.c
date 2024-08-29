@@ -4,9 +4,9 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
-static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, uint8_t* transfer);
+static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, size_t* transfer);
 
-static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, uint8_t* transfer)
+static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, size_t* transfer)
 {
 	I2CTransaction* tmp = FifoBuffer_Remove(&i2c->TransBuffer);
 
@@ -15,7 +15,7 @@ static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, uint8_t* t
 	{
 		i2c->Active  = true;
 		*transaction = *tmp;
-		return 1 << TWSTA; // Issue start
+		return 1 << TWSTA; // Issue start/restart
 	}
 	else
 	{
@@ -59,7 +59,7 @@ ISR(TWI_vect)
 				if (activeTransaction.Complete)
 					activeTransaction.Complete(I2C_COMPLETE_OK, activeTransaction.Address, transfered);
 
-				controlValue |= nextTransaction(i2c, *activeTransaction, &transfered);
+				controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			}
 			break;
 
