@@ -26,7 +26,7 @@ typedef enum _UARTParity_
  */
 typedef enum _UARTInstance_
 {
-	UART0,
+	UART0, /** UART */
 } UARTInstance;
 
 /**
