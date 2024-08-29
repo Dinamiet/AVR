@@ -57,7 +57,7 @@ ISR(TWI_vect)
 			else // Done with current transaction no more data to write
 			{
 				if (activeTransaction.Complete)
-					activeTransaction.Complete(activeTransaction.Address, transfered);
+					activeTransaction.Complete(I2C_COMPLETE_OK, activeTransaction.Address, transfered);
 
 				controlValue |= nextTransaction(i2c, *activeTransaction, &transfered);
 			}
@@ -79,7 +79,7 @@ ISR(TWI_vect)
 			else if (activeTransaction.Size == transfered)
 			{
 				if (activeTransaction.Complete)
-					activeTransaction.Complete(activeTransaction.Address, transfered);
+					activeTransaction.Complete(I2C_COMPLETE_OK, activeTransaction.Address, transfered);
 				controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			}
 			break;
@@ -87,7 +87,7 @@ ISR(TWI_vect)
 		case TW_MR_SLA_NACK: // Fall through
 		case TW_MR_DATA_NACK:
 			if (activeTransaction.Complete)
-				activeTransaction.Complete(activeTransaction.Address, transfered);
+				activeTransaction.Complete(I2C_COMPLETE_ERROR, activeTransaction.Address, transfered);
 			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			break;
 
@@ -95,7 +95,7 @@ ISR(TWI_vect)
 		case TW_MT_DATA_NACK: // Fall through
 		case TW_MT_ARB_LOST:  // Fall through
 			if (activeTransaction.Complete)
-				activeTransaction.Complete(activeTransaction.Address, transfered);
+				activeTransaction.Complete(I2C_COMPLETE_ERROR, activeTransaction.Address, transfered);
 			while (transfered++ < activeTransaction.Size) // Remove this transactions write data still in buffer
 				bufferElement = FifoBuffer_Remove(&i2c->TXBuffer);
 

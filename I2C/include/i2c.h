@@ -5,7 +5,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef void (*I2CRequestComplete)(uint8_t addr, size_t size);
+typedef enum _I2CCompleteStatus_
+{
+	I2C_COMPLETE_OK,
+	I2C_COMPLETE_ERROR,
+} I2CCompleteStatus;
+
+typedef void (*I2CRequestComplete)(I2CCompleteStatus status, uint8_t addr, size_t size);
 
 typedef struct _I2CTransaction_
 {
