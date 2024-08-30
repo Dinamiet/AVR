@@ -7,11 +7,13 @@
 void GPIO_Init(GPIO* gpio)
 {
 	assert(gpio != NULL);
+	(void)gpio;
 	// Power on hardware?
 }
 void GPIO_Deinit(GPIO* gpio)
 {
 	assert(gpio != NULL);
+	(void)gpio;
 	// Power off hardware?
 }
 
