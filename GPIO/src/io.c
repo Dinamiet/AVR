@@ -22,7 +22,7 @@ void GPIO_Write(GPIO* gpio, uint8_t value)
 {
 	assert(gpio != NULL);
 
-	gpio->Pin = value;
+	gpio->Port = value;
 }
 
 void GPIO_WritePin(GPIO* gpio, uint8_t pinNum, uint8_t value)
@@ -30,21 +30,21 @@ void GPIO_WritePin(GPIO* gpio, uint8_t pinNum, uint8_t value)
 	assert(gpio != NULL);
 
 	if (value)
-		gpio->Pin |= 1 << pinNum;
+		gpio->Port |= 1 << pinNum;
 	else
-		gpio->Pin &= ~(1 << pinNum);
+		gpio->Port &= ~(1 << pinNum);
 }
 
 void GPIO_Toggle(GPIO* gpio, uint8_t mask)
 {
 	assert(gpio != NULL);
 
-	gpio->Pin ^= mask;
+	gpio->Port ^= mask;
 }
 
 void GPIO_TogglePin(GPIO* gpio, uint8_t pinNum)
 {
 	assert(gpio != NULL);
 
-	gpio->Pin ^= (1 << pinNum);
+	gpio->Port ^= (1 << pinNum);
 }
