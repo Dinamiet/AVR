@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 project(
-	ATMega328P
+	ATmega328P
 )
 
 # Doxygen document generation
@@ -23,6 +23,8 @@ if (DOXYGEN_FOUND AND NOT DOXYGEN_IN)
 		VERBATIM
 	)
 endif()
+
+include(Toolchain/avr-gcc.cmake)
 
 add_subdirectory(lib)
 add_subdirectory(GPIO)
