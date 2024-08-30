@@ -25,5 +25,6 @@ if (DOXYGEN_FOUND AND NOT DOXYGEN_IN)
 endif()
 
 add_subdirectory(lib)
-add_subdirectory(UART)
 add_subdirectory(GPIO)
+add_subdirectory(UART)
+add_subdirectory(I2C)

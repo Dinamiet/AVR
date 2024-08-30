@@ -31,14 +31,14 @@ void UART_Deinit(UART* uart)
 	*uart->PWR |= (1 << PRUSART0); // Power off HW
 }
 
-void UART_AssignRxBuffer(UART* uart, uint8_t* buff, const size_t size)
+void UART_AssignReceiveBuffer(UART* uart, uint8_t* buff, const size_t size)
 {
 	assert(uart != NULL);
 
 	FifoBuffer_Init(&uart->RxBuffer, buff, sizeof(*buff), size);
 }
 
-void UART_AssignTxBuffer(UART* uart, uint8_t* buff, const size_t size)
+void UART_AssignTransmitBuffer(UART* uart, uint8_t* buff, const size_t size)
 {
 	assert(uart != NULL);
 
