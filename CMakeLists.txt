@@ -24,8 +24,6 @@ if (DOXYGEN_FOUND AND NOT DOXYGEN_IN)
 	)
 endif()
 
-include(Toolchain/avr-gcc.cmake)
-
 add_subdirectory(lib)
 add_subdirectory(GPIO)
 add_subdirectory(UART)
