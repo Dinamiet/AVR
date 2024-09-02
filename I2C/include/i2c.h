@@ -6,6 +6,8 @@
  * I2C
  *
  * Non blocking I2C Master mode
+ *
+ * TODO: Implement I2C Slave mode
  */
 
 #include <stdbool.h>
