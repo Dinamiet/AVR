@@ -4,6 +4,8 @@
 /**
  * \file
  * GPIO Driver
+ *
+ * TODO: Implement Pin Change Interrupts (PCINT24..0), External Interrupt is not the only interrupts
  */
 
 #include <stdint.h>
