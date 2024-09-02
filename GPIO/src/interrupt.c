@@ -32,7 +32,8 @@ void GPIO_EnableIRQ(GPIOInstance instance, GPIOInterruptTrigger trigger, GPIO_In
 			EIMSK |= 1 << INT1;
 			break;
 
-		default: // Only ISR0 and ISR1 should handled here
+		default: // Only ISR0 and ISR1 should be handled here
+			assert(false);
 			break;
 	}
 }
@@ -51,6 +52,7 @@ void GPIO_DisableIRQ(GPIOInstance instance)
 			break;
 
 		default: // Only ISR0 and ISR1 should handled here
+			assert(false);
 			break;
 	}
 }
