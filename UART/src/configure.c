@@ -9,13 +9,13 @@ void UART_Init(UART* uart)
 {
 	assert(uart != NULL);
 
+	*uart->PWR &= ~(1 << PRUSART0); /// Power on HW
+
 	uint8_t registerSetup = 1 << RXEN0; // Receiver
 	registerSetup |= 1 << TXEN0;        // Transmitter
 	registerSetup |= 1 << RXCIE0;       // RX interrupt
 
 	uart->Registers->StatusB = registerSetup;
-
-	*uart->PWR &= ~(1 << PRUSART0); /// Power on HW
 }
 
 void UART_Deinit(UART* uart)
