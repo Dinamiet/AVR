@@ -36,7 +36,7 @@ size_t UART_Read(UART* uart, void* _data, const size_t size)
 	uint8_t* data = _data;
 	size_t   read = 0;
 
-	uart->Registers->StatusB &= ~(1 << RXC0); // Disable RX interrupt
+	uart->Registers->StatusB &= ~(1 << RXCIE0); // Disable RX interrupt
 
 	uint8_t* bufferElement = FifoBuffer_Remove(&uart->RxBuffer);
 	while (bufferElement)
@@ -47,7 +47,7 @@ size_t UART_Read(UART* uart, void* _data, const size_t size)
 		bufferElement = FifoBuffer_Remove(&uart->RxBuffer);
 	}
 
-	uart->Registers->StatusB |= 1 << RXC0; // Enable RX interrupt
+	uart->Registers->StatusB |= 1 << RXCIE0; // Enable RX interrupt
 
 	return read;
 }
