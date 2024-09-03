@@ -12,7 +12,7 @@ size_t UART_Write(UART* uart, const void* _data, const size_t size)
 	const uint8_t* data    = _data;
 	size_t         written = 0;
 
-	uart->Registers->StatusB &= ~(1 << UDRE0); // Disable TX interrupt
+	uart->Registers->StatusB &= ~(1 << UDRIE0); // Disable TX interrupt
 
 	uint8_t* bufferElement = FifoBuffer_Add(&uart->TxBuffer);
 	while (bufferElement)
@@ -23,7 +23,7 @@ size_t UART_Write(UART* uart, const void* _data, const size_t size)
 		bufferElement = FifoBuffer_Add(&uart->TxBuffer);
 	}
 
-	uart->Registers->StatusB |= 1 << UDRE0; // Enable TX interrupt
+	uart->Registers->StatusB |= 1 << UDRIE0; // Enable TX interrupt
 
 	return written;
 }

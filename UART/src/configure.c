@@ -11,7 +11,7 @@ void UART_Init(UART* uart)
 
 	uint8_t registerSetup = 1 << RXEN0; // Receiver
 	registerSetup |= 1 << TXEN0;        // Transmitter
-	registerSetup |= 1 << RXC0;         // RX interrupt
+	registerSetup |= 1 << RXCIE0;       // RX interrupt
 
 	uart->Registers->StatusB = registerSetup;
 
@@ -24,8 +24,8 @@ void UART_Deinit(UART* uart)
 
 	uint8_t registerSetup = 1 << RXEN0; // Receiver
 	registerSetup |= 1 << TXEN0;        // Transmitter
-	registerSetup |= 1 << RXC0;         // RX Interrupt
-	registerSetup |= 1 << UDRE0;        // TX Interrupt
+	registerSetup |= 1 << RXCIE0;       // RX Interrupt
+	registerSetup |= 1 << UDRIE0;       // TX Interrupt
 	uart->Registers->StatusB &= ~registerSetup;
 
 	*uart->PWR |= (1 << PRUSART0); // Power off HW
