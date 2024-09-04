@@ -56,5 +56,5 @@ bool UART_IsBusy(const UART* uart)
 {
 	assert(uart != NULL);
 
-	return (uart->Registers->StatusB & (1 << UDRE0)); // Active if TX interrupt is enabled
+	return (uart->Registers->StatusB & (1 << UDRIE0)); // Active if TX interrupt is enabled
 }
