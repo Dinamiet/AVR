@@ -53,10 +53,9 @@ target_sources(
 		include/uart.h
 	PRIVATE
 		src/structure.h
-		src/instance.c
 		src/configure.c
-		src/receive.c
-		src/transmit.c
+		src/instance.c
+		src/transfer.c
 )
 
 target_link_libraries(
