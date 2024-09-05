@@ -55,8 +55,8 @@ target_sources(
 		src/structure.h
 		src/instance.c
 		src/configure.c
-		src/transfer.c
-		src/interrupt.c
+		src/receive.c
+		src/transmit.c
 )
 
 target_link_libraries(
