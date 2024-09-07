@@ -73,10 +73,18 @@ void UART_SetFormat(const UART* uart, const size_t dataBits, const UARTParity pa
 #endif
 	assert(stopBits < 2);
 
+	uint8_t dataBitsRegister = dataBits - 5;
+#ifdef UART_ENABLE_9BIT
+	if (dataBits == 9)
+		dataBitsRegister = 0x07;
+#endif
+
 	uint8_t registerVal = 0;
-	registerVal |= (dataBits - 5) << UCSZ00;
+	registerVal |= (dataBitsRegister & 0x03) << UCSZ00;
 	registerVal |= (stopBits - 1) << USBS0;
 	registerVal |= parity << UPM00;
 
+	uart->Registers->StatusB &= ~(1 << UCSZ02);
+	uart->Registers->StatusB |= ((dataBitsRegister >> 2) & 0x01) << UCSZ02;
 	uart->Registers->StatusC = registerVal;
 }
