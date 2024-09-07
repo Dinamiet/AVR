@@ -31,18 +31,18 @@ void UART_Deinit(UART* uart)
 	*uart->PWR |= (1 << PRUSART0); // Power off HW
 }
 
-void UART_AssignReceiveBuffer(UART* uart, uint8_t* buff, const size_t size)
+void UART_AssignReceiveBuffer(UART* uart, void* buff, const size_t size)
 {
 	assert(uart != NULL);
 
-	FifoBuffer_Init(&uart->RxBuffer, buff, sizeof(*buff), size);
+	FifoBuffer_Init(&uart->RxBuffer, buff, size);
 }
 
-void UART_AssignTransmitBuffer(UART* uart, uint8_t* buff, const size_t size)
+void UART_AssignTransmitBuffer(UART* uart, void* buff, const size_t size)
 {
 	assert(uart != NULL);
 
-	FifoBuffer_Init(&uart->TxBuffer, buff, sizeof(*buff), size);
+	FifoBuffer_Init(&uart->TxBuffer, buff, size);
 }
 
 void UART_SetBaud(const UART* uart, const uint32_t baud)

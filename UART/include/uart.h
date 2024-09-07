@@ -60,7 +60,7 @@ void UART_Deinit(UART* uart);
  * \param buff Buffer
  * \param size Size of the buffer (bytes)
  */
-void UART_AssignReceiveBuffer(UART* uart, uint8_t* buff, const size_t size);
+void UART_AssignReceiveBuffer(UART* uart, void* buff, const size_t size);
 
 /**
  * Assign transmit buffer to the UART
@@ -68,7 +68,7 @@ void UART_AssignReceiveBuffer(UART* uart, uint8_t* buff, const size_t size);
  * \param buff Buffer
  * \param size Size of the buffer (bytes)
  */
-void UART_AssignTransmitBuffer(UART* uart, uint8_t* buff, const size_t size);
+void UART_AssignTransmitBuffer(UART* uart, void* buff, const size_t size);
 
 /**
  * Sets the UART BAUD rate to the specified rate
