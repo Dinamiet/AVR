@@ -39,6 +39,7 @@ ISR(USART_UDRE_vect)
 	uint16_t data;
 	if (FifoBuffer_Remove(&uart->TxBuffer, &data, sizeof(data)) == sizeof(data))
 	{
+		uart->Registers->StatusB &= ~(1 << TXB80);
 		uart->Registers->StatusB |= ((data >> 8) & 0x01) << TXB80;
 		uart->Registers->Data = data & 0xFF;
 	}
