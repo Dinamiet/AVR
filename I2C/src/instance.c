@@ -1,6 +1,7 @@
 #include "i2c.h"
 #include "structure.h"
 
+#include <assert.h>
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
