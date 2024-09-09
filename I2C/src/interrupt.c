@@ -9,13 +9,10 @@ static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, size_t* tr
 
 static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, size_t* transfer)
 {
-	I2CTransaction* tmp = FifoBuffer_Remove(&i2c->TransBuffer);
-
 	*transfer = 0;
-	if (tmp) // Next transaction available
+	if (FifoBuffer_Remove(&i2c->TransBuffer, transaction, sizeof(*transaction))) // Next transaction available
 	{
-		i2c->Active  = true;
-		*transaction = *tmp;
+		i2c->Active = true;
 		return 1 << TWSTA; // Issue start/restart
 	}
 	else
@@ -29,7 +26,6 @@ ISR(TWI_vect)
 {
 	I2C*                  i2c          = I2C_GetInstance(I2C0);
 	uint8_t               controlValue = i2c->Registers->Control;
-	uint8_t*              bufferElement;
 	uint8_t               data;
 	static size_t         transfered = 0;
 	static I2CTransaction activeTransaction;
@@ -51,9 +47,8 @@ ISR(TWI_vect)
 		case TW_MT_DATA_ACK:
 			if (transfered++ < activeTransaction.Size)
 			{
-				bufferElement = FifoBuffer_Remove(&i2c->TXBuffer);
-				if (bufferElement)
-					i2c->Registers->Data = *bufferElement;
+				if (FifoBuffer_Remove(&i2c->TXBuffer, &data, sizeof(data)))
+					i2c->Registers->Data = data;
 			}
 			else // Done with current transaction no more data to write
 			{
@@ -71,9 +66,7 @@ ISR(TWI_vect)
 
 		case TW_MR_DATA_ACK:                      // Fall through
 			data          = i2c->Registers->Data; // Force read
-			bufferElement = FifoBuffer_Add(&i2c->RXBuffer);
-			if (bufferElement)
-				*bufferElement = data;
+			FifoBuffer_Add(&i2c->RXBuffer, &data, sizeof(data));
 			transfered++;
 			if (activeTransaction.Size - transfered == 1) // next receive is last one
 				controlValue &= ~(1 << TWEA);             // Disable ACK
@@ -98,7 +91,7 @@ ISR(TWI_vect)
 			if (activeTransaction.Complete)
 				activeTransaction.Complete(I2C_COMPLETE_ERROR, activeTransaction.Address, transfered);
 			while (transfered++ < activeTransaction.Size) // Remove this transactions write data still in buffer
-				bufferElement = FifoBuffer_Remove(&i2c->TXBuffer);
+				FifoBuffer_Remove(&i2c->TXBuffer, &data, sizeof(data));
 
 			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			break;

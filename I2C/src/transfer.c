@@ -11,85 +11,57 @@ bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complet
 	assert(size > 0);
 
 	// Disable Interrupt?
-	I2CTransaction* transaction = FifoBuffer_Add(&i2c->TransBuffer);
-	if (!transaction)
+	I2CTransaction transaction;
+	if (FifoBuffer_Free(&i2c->TransBuffer) < sizeof(transaction))
 		return false;
 
-	transaction->Action   = TW_READ;
-	transaction->Address  = addr;
-	transaction->Size     = size;
-	transaction->Complete = complete;
+	transaction.Action   = TW_READ;
+	transaction.Address  = addr;
+	transaction.Size     = size;
+	transaction.Complete = complete;
+
+	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
 
 	// Enable Interrupt?
 
 	if (!i2c->Active)
-	{
 		i2c->Registers->Control |= 1 << TWSTA; // Issue start if not already active
-	}
 
 	return true;
 }
 
-size_t I2C_Read(I2C* i2c, void* _data, size_t size)
+size_t I2C_Read(I2C* i2c, void* data, size_t size)
 {
 	assert(i2c != NULL);
-	assert(_data != NULL);
-
-	uint8_t* data = _data;
-	size_t   read;
+	assert(data != NULL);
 
 	// Disable Interrupt?
-
-	uint8_t* bufferElement = FifoBuffer_Remove(&i2c->RXBuffer);
-	while (bufferElement)
-	{
-		data[read++] = *bufferElement;
-		if (read >= size)
-			break;
-
-		bufferElement = FifoBuffer_Remove(&i2c->RXBuffer);
-	}
-
 	// Enable Interrupt?
 
-	return read;
+	return FifoBuffer_Remove(&i2c->RXBuffer, data, size);
 }
 
-size_t I2C_Write(I2C* i2c, uint8_t addr, void* _data, size_t size)
+size_t I2C_Write(I2C* i2c, uint8_t addr, void* data, size_t size)
 {
 	assert(i2c != NULL);
-	assert(_data != NULL);
-
-	uint8_t*        data        = _data;
-	I2CTransaction* transaction = FifoBuffer_Add(&i2c->TransBuffer);
-	if (!transaction)
-		return 0;
+	assert(data != NULL);
 
 	// Disable Interrupt?
+	I2CTransaction transaction;
 
-	uint8_t* bufferElement = FifoBuffer_Add(&i2c->TXBuffer);
-	size_t   written;
+	if (FifoBuffer_Free(&i2c->TransBuffer) < sizeof(transaction))
+		return 0;
 
-	while (bufferElement)
-	{
-		*bufferElement = data[written++];
-		if (written >= size)
-			break;
-		bufferElement = FifoBuffer_Add(&i2c->TXBuffer);
-	}
-
-	transaction->Action  = TW_WRITE;
-	transaction->Address = addr;
-	transaction->Size    = written;
+	transaction.Action  = TW_WRITE;
+	transaction.Address = addr;
+	transaction.Size    = FifoBuffer_Add(&i2c->TXBuffer, data, size);
 
 	// Enable Interrupt?
 
 	if (!i2c->Active)
-	{
 		i2c->Registers->Control |= 1 << TWSTA; // Issue start if not already active
-	}
 
-	return written;
+	return transaction.Size;
 }
 
 bool I2C_IsBusy(I2C* i2c)

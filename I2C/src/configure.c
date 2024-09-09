@@ -30,21 +30,21 @@ void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, size_t size)
 {
 	assert(i2c != NULL);
 
-	FifoBuffer_Init(&i2c->TransBuffer, buff, sizeof(*buff), size);
+	FifoBuffer_Init(&i2c->TransBuffer, buff, size);
 }
 
 void I2C_AssignWriteBuffer(I2C* i2c, uint8_t* buff, size_t size)
 {
 	assert(i2c != NULL);
 
-	FifoBuffer_Init(&i2c->TXBuffer, buff, sizeof(*buff), size);
+	FifoBuffer_Init(&i2c->TXBuffer, buff, size);
 }
 
 void I2C_AssignReadBuffer(I2C* i2c, uint8_t* buff, size_t size)
 {
 	assert(i2c != NULL);
 
-	FifoBuffer_Init(&i2c->RXBuffer, buff, sizeof(*buff), size);
+	FifoBuffer_Init(&i2c->RXBuffer, buff, size);
 }
 
 void I2C_SetBaud(I2C* i2c, uint32_t baud)
