@@ -8,11 +8,11 @@ void I2C_Init(I2C* i2c)
 {
 	assert(i2c != NULL);
 
+	*i2c->PWR &= ~(1 << PRTWI); // Power on HW
+
 	uint8_t registerSetup = 1 << TWEN; // Enable I2C HW
 	registerSetup |= 1 << TWIE;        // Enable I2C interrupt
 	i2c->Registers->Control |= registerSetup;
-
-	*i2c->PWR &= ~(1 << PRTWI); // Power on HW
 }
 
 void I2C_Deinit(I2C* i2c)
