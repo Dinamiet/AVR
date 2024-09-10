@@ -51,9 +51,6 @@ ISR(TWI_vect)
 			// Fall through
 		case TW_REP_START:
 			controlValue &= ~(1 << TWSTA); // Clear start
-
-			if (!activeTransaction.Size)
-				break;
 			i2c->Registers->Data = activeTransaction.ControlByte;
 			break;
 
