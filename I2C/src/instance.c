@@ -11,7 +11,7 @@ static I2C i2c0 = {.Registers = (I2CMemory*)&TWBR, .PWR = &PRR};
 
 static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, size_t* transfer)
 {
-	*transfer = 0;
+	transaction->Size = *transfer = 0;
 	if (FifoBuffer_Remove(&i2c->TransBuffer, transaction, sizeof(*transaction))) // Next transaction available
 	{
 		i2c->Active = true;
