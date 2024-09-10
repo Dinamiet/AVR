@@ -78,12 +78,13 @@ ISR(TWI_vect)
 				controlValue |= 1 << TWEA;
 			break;
 
-		case TW_MR_DATA_ACK:
+		case TW_MR_DATA_ACK: // Fall through
+		case TW_MR_DATA_NACK:
 			data = i2c->Registers->Data; // Force read
 			FifoBuffer_Add(&i2c->RXBuffer, &data, sizeof(data));
 			transfered++;
 			if (activeTransaction.Size - transfered == 1) // next receive is last one
-				controlValue &= ~(1 << TWEA);             // Disable ACK
+				controlValue &= ~(1 << TWEA);             // NACK to indicate end
 			else if (activeTransaction.Size == transfered)
 			{
 				if (activeTransaction.Complete)
@@ -92,8 +93,7 @@ ISR(TWI_vect)
 			}
 			break;
 
-		case TW_MR_SLA_NACK: // Fall through
-		case TW_MR_DATA_NACK:
+		case TW_MR_SLA_NACK:
 			if (activeTransaction.Complete)
 				activeTransaction.Complete(I2C_COMPLETE_ERROR, activeTransaction.Address, transfered);
 			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
