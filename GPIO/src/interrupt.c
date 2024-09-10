@@ -8,7 +8,7 @@
 static GPIO_InterruptFunction isr0 = NULL;
 static GPIO_InterruptFunction isr1 = NULL;
 
-void GPIO_EnableIRQ(GPIOInstance instance, GPIOInterruptTrigger trigger, GPIO_InterruptFunction isr)
+void GPIO_EnableIRQ(const GPIOInstance instance, const GPIOInterruptTrigger trigger, const GPIO_InterruptFunction isr)
 {
 	assert(trigger <= 0x03);
 	assert(isr != NULL);
@@ -37,7 +37,7 @@ void GPIO_EnableIRQ(GPIOInstance instance, GPIOInterruptTrigger trigger, GPIO_In
 			break;
 	}
 }
-void GPIO_DisableIRQ(GPIOInstance instance)
+void GPIO_DisableIRQ(const GPIOInstance instance)
 {
 	switch (instance)
 	{

@@ -17,7 +17,7 @@ void GPIO_Deinit(GPIO* gpio)
 	// Power off hardware?
 }
 
-void GPIO_SetMode(GPIO* gpio, uint8_t mask, GPIOMode mode)
+void GPIO_SetMode(GPIO* gpio, const uint8_t mask, const GPIOMode mode)
 {
 	assert(gpio != NULL);
 
@@ -41,7 +41,7 @@ void GPIO_SetMode(GPIO* gpio, uint8_t mask, GPIOMode mode)
 	}
 }
 
-void GPIO_SetModePin(GPIO* gpio, uint8_t pinNum, GPIOMode mode)
+void GPIO_SetModePin(GPIO* gpio, const uint8_t pinNum, const GPIOMode mode)
 {
 	assert(gpio != NULL);
 

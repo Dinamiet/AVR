@@ -5,7 +5,7 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
-bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complete)
+bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2CRequestComplete complete)
 {
 	assert(i2c != NULL);
 	assert(size > 0);
@@ -27,7 +27,7 @@ bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complet
 	return true;
 }
 
-size_t I2C_Read(I2C* i2c, void* data, size_t size)
+size_t I2C_Read(I2C* i2c, void* data, const size_t size)
 {
 	assert(i2c != NULL);
 	assert(data != NULL);
@@ -35,7 +35,7 @@ size_t I2C_Read(I2C* i2c, void* data, size_t size)
 	return FifoBuffer_Remove(&i2c->RXBuffer, data, size);
 }
 
-size_t I2C_Write(I2C* i2c, uint8_t addr, void* data, size_t size, I2CRequestComplete complete)
+size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2CRequestComplete complete)
 {
 	assert(i2c != NULL);
 	assert(data != NULL);
@@ -58,7 +58,7 @@ size_t I2C_Write(I2C* i2c, uint8_t addr, void* data, size_t size, I2CRequestComp
 	return transaction.Size;
 }
 
-bool I2C_IsBusy(I2C* i2c)
+bool I2C_IsBusy(const I2C* i2c)
 {
 	assert(i2c != NULL);
 

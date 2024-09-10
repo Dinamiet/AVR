@@ -65,7 +65,7 @@ typedef struct _I2C_ I2C;
  * \param instance The I2C instance to return
  * \return Reference to I2C instance
  */
-I2C* I2C_GetInstance(I2CInstance instance);
+I2C* I2C_GetInstance(const I2CInstance instance);
 
 /**
  * Initialize and power-on I2C hardware
@@ -86,7 +86,7 @@ void I2C_Deinit(I2C* i2c);
  * \param buff Transaction buffer to use
  * \param num Number of transactions the buffer can hold
  */
-void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, size_t num);
+void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, const size_t num);
 
 /**
  * Assigns a Write buffer to the I2C instance.
@@ -95,7 +95,7 @@ void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, size_t num);
  * \param buff Write buffer to use
  * \param size Size (Bytes) of the available buffer
  */
-void I2C_AssignWriteBuffer(I2C* i2c, uint8_t* buff, size_t size);
+void I2C_AssignWriteBuffer(I2C* i2c, void* buff, const size_t size);
 
 /**
  * Assigns a Read buffer to the I2C instance.
@@ -104,13 +104,13 @@ void I2C_AssignWriteBuffer(I2C* i2c, uint8_t* buff, size_t size);
  * \param buff Read buffer to use
  * \param size Size (Bytes) of the available buffer
  */
-void I2C_AssignReadBuffer(I2C* i2c, uint8_t* buff, size_t size);
+void I2C_AssignReadBuffer(I2C* i2c, void* buff, const size_t size);
 
 /** Configures the I2C instance bus speed/clock rate
  * \param i2c Instance clock rate to adjust
  * \param baud Bus clock rate (Hz)
  */
-void I2C_SetBaud(I2C* i2c, uint32_t baud);
+void I2C_SetBaud(I2C* i2c, const uint32_t baud);
 
 /**
  * Issue a Request for data (Read) on the I2C bus
@@ -120,7 +120,7 @@ void I2C_SetBaud(I2C* i2c, uint32_t baud);
  * \param complete Transaction done callback
  * \return True if transaction could be queued on the bus, false otherwise
  */
-bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complete);
+bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2CRequestComplete complete);
 
 /**
  * Read requested data. All data will only be available after the transaction is completed
@@ -129,7 +129,7 @@ bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complet
  * \param size Number of bytes to read from buffered data (recommended to match requested transaction size)
  * \return Number of bytes read from buffered data
  */
-size_t I2C_Read(I2C* i2c, void* data, size_t size);
+size_t I2C_Read(I2C* i2c, void* data, const size_t size);
 
 /**
  * Write data to a device on the bus
@@ -137,15 +137,16 @@ size_t I2C_Read(I2C* i2c, void* data, size_t size);
  * \param addr Device to write to
  * \param data The data to write
  * \param size Number of bytes to write to the device
+ * \param complete Transaction done callback
  * \return Number of bytes added to buffer to write
  */
-size_t I2C_Write(I2C* i2c, uint8_t addr, void* data, size_t size, I2CRequestComplete complete);
+size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2CRequestComplete complete);
 
 /**
  * Check if I2C instance is busy
  * \param i2c Instance
  * \return True if the I2C instance is busy, False if no transactions are pending
  */
-bool I2C_IsBusy(I2C* i2c);
+bool I2C_IsBusy(const I2C* i2c);
 
 #endif

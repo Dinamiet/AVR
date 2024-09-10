@@ -24,7 +24,7 @@ static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, size_t* tr
 	}
 }
 
-I2C* I2C_GetInstance(I2CInstance instance)
+I2C* I2C_GetInstance(const I2CInstance instance)
 {
 	switch (instance)
 	{

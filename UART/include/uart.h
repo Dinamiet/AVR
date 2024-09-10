@@ -75,7 +75,7 @@ void UART_AssignTransmitBuffer(UART* uart, void* buff, const size_t size);
  * \param uart UART to configure
  * \param baud BAUD rate to configure
  */
-void UART_SetBaud(const UART* uart, const uint32_t baud);
+void UART_SetBaud(UART* uart, const uint32_t baud);
 
 /**
  * Sets UART data format
@@ -84,7 +84,7 @@ void UART_SetBaud(const UART* uart, const uint32_t baud);
  * \param parity Parity configuration
  * \param stopBits Stop bits
  */
-void UART_SetFormat(const UART* uart, const size_t dataBits, const UARTParity parity, const size_t stopBits);
+void UART_SetFormat(UART* uart, const size_t dataBits, const UARTParity parity, const size_t stopBits);
 
 /**
  * Write/transmit data to UART

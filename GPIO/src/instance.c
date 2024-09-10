@@ -8,7 +8,7 @@ static GPIO* GPIOB = (GPIO*)&PINB;
 static GPIO* GPIOC = (GPIO*)&PINC;
 static GPIO* GPIOD = (GPIO*)&PIND;
 
-GPIO* GPIO_GetInstance(GPIOInstance instance)
+GPIO* GPIO_GetInstance(const GPIOInstance instance)
 {
 	switch (instance)
 	{

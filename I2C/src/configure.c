@@ -26,28 +26,28 @@ void I2C_Deinit(I2C* i2c)
 	*i2c->PWR |= (1 << PRTWI); // Power off HW
 }
 
-void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, size_t size)
+void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, const size_t size)
 {
 	assert(i2c != NULL);
 
 	FifoBuffer_Init(&i2c->TransBuffer, buff, size);
 }
 
-void I2C_AssignWriteBuffer(I2C* i2c, uint8_t* buff, size_t size)
+void I2C_AssignWriteBuffer(I2C* i2c, void* buff, const size_t size)
 {
 	assert(i2c != NULL);
 
 	FifoBuffer_Init(&i2c->TXBuffer, buff, size);
 }
 
-void I2C_AssignReadBuffer(I2C* i2c, uint8_t* buff, size_t size)
+void I2C_AssignReadBuffer(I2C* i2c, void* buff, const size_t size)
 {
 	assert(i2c != NULL);
 
 	FifoBuffer_Init(&i2c->RXBuffer, buff, size);
 }
 
-void I2C_SetBaud(I2C* i2c, uint32_t baud)
+void I2C_SetBaud(I2C* i2c, const uint32_t baud)
 {
 	assert(i2c != NULL);
 	assert(baud > 0);

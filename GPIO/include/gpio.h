@@ -54,7 +54,7 @@ typedef struct _GPIO_ GPIO;
  * \param instance The GPIO instance to retrieve
  * \return Reference to GPIO instance
  */
-GPIO* GPIO_GetInstance(GPIOInstance instance);
+GPIO* GPIO_GetInstance(const GPIOInstance instance);
 
 /**
  * Initialize and power-on GPIO
@@ -74,7 +74,7 @@ void GPIO_Deinit(GPIO* gpio);
  * \param mask Individual IO channels to change, 0 - Unaffected by mode, 1 - Affected by mode
  * \param mode The mode to which IO channels should be set
  */
-void GPIO_SetMode(GPIO* gpio, uint8_t mask, GPIOMode mode);
+void GPIO_SetMode(GPIO* gpio, const uint8_t mask, const GPIOMode mode);
 
 /**
  * Sets the mode of an individual GPIO channel
@@ -82,14 +82,14 @@ void GPIO_SetMode(GPIO* gpio, uint8_t mask, GPIOMode mode);
  * \param pinNum Channel (bit) within the GPIO bank to change
  * \param mode The mode to which the channel should be set
  */
-void GPIO_SetModePin(GPIO* gpio, uint8_t pinNum, GPIOMode mode);
+void GPIO_SetModePin(GPIO* gpio, const uint8_t pinNum, const GPIOMode mode);
 
 /**
  * Reads the current status of the entire GPIO bank
  * \param gpio GPIO bank to read
  * \return Value of the entire GPIO bank
  */
-uint8_t GPIO_Read(GPIO* gpio);
+uint8_t GPIO_Read(const GPIO* gpio);
 
 /**
  * Read the current status of a single GPIO channel
@@ -97,14 +97,14 @@ uint8_t GPIO_Read(GPIO* gpio);
  * \param pinNum Channel (bit) within the channel to read
  * \return Value of the selected channel
  */
-uint8_t GPIO_ReadPin(GPIO* gpio, uint8_t pinNum);
+uint8_t GPIO_ReadPin(const GPIO* gpio, const uint8_t pinNum);
 
 /**
  * Write to a GPIO bank
  * \param gpio GPIO bank to write
  * \param value The value to write
  */
-void GPIO_Write(GPIO* gpio, uint8_t value);
+void GPIO_Write(GPIO* gpio, const uint8_t value);
 
 /**
  * Write a individual GPIO channel
@@ -112,21 +112,21 @@ void GPIO_Write(GPIO* gpio, uint8_t value);
  * \param pinNum Channel (bit) within bank to write
  * \param value The value to write to the channel
  */
-void GPIO_WritePin(GPIO* gpio, uint8_t pinNum, uint8_t value);
+void GPIO_WritePin(GPIO* gpio, const uint8_t pinNum, const uint8_t value);
 
 /**
  * Changes the current state of the GPIO bank from a mask
  * \param gpio GPIO bank to toggle
  * \param mask Bit mask for all channels within the bank to change
  */
-void GPIO_Toggle(GPIO* gpio, uint8_t mask);
+void GPIO_Toggle(GPIO* gpio, const uint8_t mask);
 
 /**
  * Changes the current state of a single GPIO channel
  * \param gpio GPIO bank in which channel resides
  * \param pinNUm Channel (bit) within bank to toggle
  */
-void GPIO_TogglePin(GPIO* gpio, uint8_t pinNum);
+void GPIO_TogglePin(GPIO* gpio, const uint8_t pinNum);
 
 /**
  * Enable external interrupt
@@ -134,12 +134,12 @@ void GPIO_TogglePin(GPIO* gpio, uint8_t pinNum);
  * \param trigger Trigger mode to assign to the interrupt
  * \param isr Interrupt service routine callback function
  */
-void GPIO_EnableIRQ(GPIOInstance instance, GPIOInterruptTrigger trigger, GPIO_InterruptFunction isr);
+void GPIO_EnableIRQ(const GPIOInstance instance, const GPIOInterruptTrigger trigger, const GPIO_InterruptFunction isr);
 
 /**
  * Disable external interrupt
  * \param instance External interrupt instance to disable
  */
-void GPIO_DisableIRQ(GPIOInstance instance);
+void GPIO_DisableIRQ(const GPIOInstance instance);
 
 #endif

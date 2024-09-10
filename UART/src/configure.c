@@ -45,7 +45,7 @@ void UART_AssignTransmitBuffer(UART* uart, void* buff, const size_t size)
 	FifoBuffer_Init(&uart->TxBuffer, buff, size);
 }
 
-void UART_SetBaud(const UART* uart, const uint32_t baud)
+void UART_SetBaud(UART* uart, const uint32_t baud)
 {
 	assert(uart != NULL);
 
@@ -63,7 +63,7 @@ void UART_SetBaud(const UART* uart, const uint32_t baud)
 	uart->Registers->StatusA  = useFast << U2X0; // Enable/Disable fast mode
 }
 
-void UART_SetFormat(const UART* uart, const size_t dataBits, const UARTParity parity, const size_t stopBits)
+void UART_SetFormat(UART* uart, const size_t dataBits, const UARTParity parity, const size_t stopBits)
 {
 	assert(uart != NULL);
 #ifdef UART_ENABLE_9BIT
