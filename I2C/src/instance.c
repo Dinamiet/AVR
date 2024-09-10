@@ -47,9 +47,9 @@ ISR(TWI_vect)
 	switch (TW_STATUS)
 	{
 		case TW_START:
+			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			// Fall through
 		case TW_REP_START:
-			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			controlValue &= ~(1 << TWSTA); // Clear start
 
 			if (!activeTransaction.Size)
@@ -59,10 +59,10 @@ ISR(TWI_vect)
 
 		case TW_MT_SLA_ACK: // Fall through
 		case TW_MT_DATA_ACK:
-			if (transfered++ < activeTransaction.Size)
+			if (transfered < activeTransaction.Size)
 			{
-				if (FifoBuffer_Remove(&i2c->TXBuffer, &data, sizeof(data)))
-					i2c->Registers->Data = data;
+				transfered += FifoBuffer_Remove(&i2c->TXBuffer, &data, sizeof(data));
+				i2c->Registers->Data = data;
 			}
 			else // Done with current transaction no more data to write
 			{
@@ -78,7 +78,7 @@ ISR(TWI_vect)
 				controlValue |= 1 << TWEA;
 			break;
 
-		case TW_MR_DATA_ACK:             // Fall through
+		case TW_MR_DATA_ACK:
 			data = i2c->Registers->Data; // Force read
 			FifoBuffer_Add(&i2c->RXBuffer, &data, sizeof(data));
 			transfered++;

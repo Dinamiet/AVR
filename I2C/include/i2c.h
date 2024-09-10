@@ -28,7 +28,7 @@ typedef enum _I2CCompleteStatus_
  * \param addr The device the transaction was intended for
  * \param size The number of bytes the transaction transfered
  */
-typedef void (*I2CRequestComplete)(I2CCompleteStatus status, uint8_t addr, size_t size);
+typedef void (*I2CRequestComplete)(const I2CCompleteStatus status, const uint8_t addr, const size_t size);
 
 /**
  * Transaction storage
@@ -139,7 +139,7 @@ size_t I2C_Read(I2C* i2c, void* data, size_t size);
  * \param size Number of bytes to write to the device
  * \return Number of bytes added to buffer to write
  */
-size_t I2C_Write(I2C* i2c, uint8_t addr, void* data, size_t size);
+size_t I2C_Write(I2C* i2c, uint8_t addr, void* data, size_t size, I2CRequestComplete complete);
 
 /**
  * Check if I2C instance is busy

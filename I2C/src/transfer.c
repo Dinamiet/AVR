@@ -2,7 +2,7 @@
 #include "structure.h"
 
 #include <assert.h>
-#include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/twi.h>
 
 bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complete)
@@ -10,7 +10,6 @@ bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complet
 	assert(i2c != NULL);
 	assert(size > 0);
 
-	// Disable Interrupt?
 	I2CTransaction transaction;
 	if (FifoBuffer_Free(&i2c->TransBuffer) < sizeof(transaction))
 		return false;
@@ -21,8 +20,6 @@ bool I2C_Request(I2C* i2c, uint8_t addr, size_t size, I2CRequestComplete complet
 	transaction.Complete = complete;
 
 	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
-
-	// Enable Interrupt?
 
 	if (!i2c->Active)
 		i2c->Registers->Control |= 1 << TWSTA; // Issue start if not already active
@@ -35,28 +32,25 @@ size_t I2C_Read(I2C* i2c, void* data, size_t size)
 	assert(i2c != NULL);
 	assert(data != NULL);
 
-	// Disable Interrupt?
-	// Enable Interrupt?
-
 	return FifoBuffer_Remove(&i2c->RXBuffer, data, size);
 }
 
-size_t I2C_Write(I2C* i2c, uint8_t addr, void* data, size_t size)
+size_t I2C_Write(I2C* i2c, uint8_t addr, void* data, size_t size, I2CRequestComplete complete)
 {
 	assert(i2c != NULL);
 	assert(data != NULL);
 
-	// Disable Interrupt?
 	I2CTransaction transaction;
 
 	if (FifoBuffer_Free(&i2c->TransBuffer) < sizeof(transaction))
 		return 0;
 
-	transaction.Action  = TW_WRITE;
-	transaction.Address = addr;
-	transaction.Size    = FifoBuffer_Add(&i2c->TXBuffer, data, size);
+	transaction.Action   = TW_WRITE;
+	transaction.Address  = addr;
+	transaction.Complete = complete;
+	transaction.Size     = FifoBuffer_Add(&i2c->TXBuffer, data, size);
 
-	// Enable Interrupt?
+	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
 
 	if (!i2c->Active)
 		i2c->Registers->Control |= 1 << TWSTA; // Issue start if not already active
