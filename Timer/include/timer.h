@@ -39,13 +39,13 @@ typedef void (*TimerInterrupt)(void);
 
 typedef struct _Timer_ Timer;
 
-Timer*   Timer_GetInstance(TimerInstance instance);
+Timer*   Timer_GetInstance(const TimerInstance instance);
 void     Timer_Init(Timer* timer);
 void     Timer_Deinit(Timer* timer);
-void     Timer_Configure(Timer* timer, TimerPrescaler prescaler);
-void Timer_EnableInterrupt(Timer* timer, TimerInterruptType type, TimerInterrupt handler);
+void     Timer_Configure(Timer* timer, const TimerPrescaler prescaler);
+void     Timer_EnableInterrupt(Timer* timer, const TimerInterruptType type, const TimerInterrupt handler);
 void     Timer_Start(Timer* timer);
 void     Timer_Stop(Timer* timer);
-uint16_t Timer_GetValue(Timer* timer);
+uint16_t Timer_GetValue(const Timer* timer);
 
 #endif

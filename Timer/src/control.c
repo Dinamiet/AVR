@@ -20,7 +20,7 @@ void Timer_Stop(Timer* timer)
 	timer->Registers->ControlB &= ~(1 << CS22 | 1 << CS21 | 1 << CS20);
 }
 
-uint16_t Timer_GetValue(Timer* timer)
+uint16_t Timer_GetValue(const Timer* timer)
 {
 	assert(timer != NULL);
 

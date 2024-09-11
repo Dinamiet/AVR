@@ -5,9 +5,9 @@
 #include <avr/io.h>
 #include <stdbool.h>
 
-static bool isRunning(Timer* timer);
+static bool isRunning(const Timer* timer);
 
-static bool isRunning(Timer* timer)
+static bool isRunning(const Timer* timer)
 {
 	assert(timer != NULL);
 
@@ -32,7 +32,7 @@ void Timer_Deinit(Timer* timer)
 	*timer->PWR |= (1 << PRTIM2);
 }
 
-void Timer_Configure(Timer* timer, TimerPrescaler prescaler)
+void Timer_Configure(Timer* timer, const TimerPrescaler prescaler)
 {
 	assert(timer != NULL);
 	assert(prescaler > 0 && prescaler <= TIMER_DIV_1024);
@@ -42,7 +42,7 @@ void Timer_Configure(Timer* timer, TimerPrescaler prescaler)
 		Timer_Start(timer); // Start timer to set updated prescaler values if already running
 }
 
-void Timer_EnableInterrupt(Timer* timer, TimerInterruptType type, TimerInterrupt handler)
+void Timer_EnableInterrupt(Timer* timer, const TimerInterruptType type, const TimerInterrupt handler)
 {
 	assert(timer != NULL);
 	assert(handler != NULL);

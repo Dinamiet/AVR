@@ -6,7 +6,7 @@
 
 static Timer timer0 = {.Registers = (TimerMemory*)&TCCR2A, .PWR = &PRR, .InterruptMask = &TIMSK2};
 
-Timer* Timer_GetInstance(TimerInstance instance)
+Timer* Timer_GetInstance(const TimerInstance instance)
 {
 	switch (instance)
 	{
