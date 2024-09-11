@@ -1,10 +1,28 @@
 #include "structure.h"
 #include "timer.h"
 
+#include <assert.h>
 #include <avr/io.h>
+#include <stddef.h>
 
-void Timer_Start(Timer* timer) { timer->Registers->ControlB |= timer->Prescaler; }
+void Timer_Start(Timer* timer)
+{
+	assert(timer != NULL);
+	assert(timer->Prescaler > 0);
 
-void Timer_Stop(Timer* timer) { timer->Registers->ControlB &= ~(1 << CS22 | 1 << CS21 | 1 << CS20); }
+	timer->Registers->ControlB |= timer->Prescaler;
+}
 
-uint16_t Timer_GetValue(Timer* timer) { return timer->Registers->Count; }
+void Timer_Stop(Timer* timer)
+{
+	assert(timer != NULL);
+
+	timer->Registers->ControlB &= ~(1 << CS22 | 1 << CS21 | 1 << CS20);
+}
+
+uint16_t Timer_GetValue(Timer* timer)
+{
+	assert(timer != NULL);
+
+	return timer->Registers->Count;
+}
