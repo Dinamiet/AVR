@@ -7,7 +7,7 @@
 size_t UART_Write(UART* uart, const void* data, const size_t size)
 {
 	assert(uart != NULL);
-	assert(_data != NULL);
+	assert(data != NULL);
 
 	uart->Registers->StatusB &= ~(1 << UDRIE0); // Disable TX interrupt
 
@@ -21,7 +21,7 @@ size_t UART_Write(UART* uart, const void* data, const size_t size)
 size_t UART_Read(UART* uart, void* data, const size_t size)
 {
 	assert(uart != NULL);
-	assert(_data != NULL);
+	assert(data != NULL);
 
 	uart->Registers->StatusB &= ~(1 << RXCIE0); // Disable RX interrupt
 

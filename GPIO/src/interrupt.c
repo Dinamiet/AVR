@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <avr/interrupt.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 static GPIO_InterruptFunction isr0 = NULL;
