@@ -36,6 +36,8 @@ I2C* I2C_GetInstance(const I2CInstance instance)
 	}
 }
 
+I2CStatus I2C_GetStatus(const I2C* i2c) { return i2c->Status; }
+
 ISR(TWI_vect)
 {
 	I2C*                  i2c          = I2C_GetInstance(I2C0);
@@ -63,8 +65,9 @@ ISR(TWI_vect)
 			}
 			else // Done with current transaction no more data to write
 			{
+				i2c->Status = I2C_STATUS_OK;
 				if (activeTransaction.Complete)
-					activeTransaction.Complete(I2C_COMPLETE_OK, activeTransaction.Address, transfered);
+					activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.Address, transfered);
 
 				controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			}
@@ -84,23 +87,26 @@ ISR(TWI_vect)
 				controlValue &= ~(1 << TWEA);             // NACK to indicate end
 			else if (activeTransaction.Size == transfered)
 			{
+				i2c->Status = I2C_STATUS_OK;
 				if (activeTransaction.Complete)
-					activeTransaction.Complete(I2C_COMPLETE_OK, activeTransaction.Address, transfered);
+					activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.Address, transfered);
 				controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			}
 			break;
 
 		case TW_MR_SLA_NACK:
+			i2c->Status = I2C_STATUS_BUS_ERROR;
 			if (activeTransaction.Complete)
-				activeTransaction.Complete(I2C_COMPLETE_ERROR, activeTransaction.Address, transfered);
+				activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.Address, transfered);
 			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			break;
 
 		case TW_MT_SLA_NACK:  // Fall through
 		case TW_MT_DATA_NACK: // Fall through
 		case TW_MT_ARB_LOST:  // Fall through
+			i2c->Status = I2C_STATUS_BUS_ERROR;
 			if (activeTransaction.Complete)
-				activeTransaction.Complete(I2C_COMPLETE_ERROR, activeTransaction.Address, transfered);
+				activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.Address, transfered);
 			while (transfered++ < activeTransaction.Size) // Remove this transactions write data still in buffer
 				FifoBuffer_Remove(&i2c->TXBuffer, &data, sizeof(data));
 

@@ -5,7 +5,7 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
-bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2CRequestComplete complete)
+bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2C_Complete complete)
 {
 	assert(i2c != NULL);
 	assert(size > 0);
@@ -35,7 +35,7 @@ size_t I2C_Read(I2C* i2c, void* data, const size_t size)
 	return FifoBuffer_Remove(&i2c->RXBuffer, data, size);
 }
 
-size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2CRequestComplete complete)
+size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2C_Complete complete)
 {
 	assert(i2c != NULL);
 	assert(data != NULL);
