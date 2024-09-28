@@ -14,13 +14,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/** Transaction completion status */
-typedef enum _I2CCompleteStatus_
-{
-	I2C_COMPLETE_OK,    /** Completed without any errors/issues */
-	I2C_COMPLETE_ERROR, /** Completed/Interrupted with errors/issues (NACK) */
-} I2CCompleteStatus;
-
 /**
  * Transaction completion callback.
  * This callback is called from the interrupt routine.
@@ -47,6 +40,15 @@ typedef struct _I2CTransaction_
 	size_t             Size;     /** Number of bytes this transaction needs to transfer */
 	I2C_Complete       Complete; /** Called when transaction finishes */
 } I2CTransaction;
+
+/**
+ * I2C bus status
+ */
+typedef enum _I2CStatus_
+{
+	I2C_STATUS_OK,        /** Ok */
+	I2C_STATUS_BUS_ERROR, /** Bus error */
+} I2CStatus;
 
 /**
  * Available I2C instances
@@ -148,5 +150,12 @@ size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t si
  * \return True if the I2C instance is busy, False if no transactions are pending
  */
 bool I2C_IsBusy(const I2C* i2c);
+
+/**
+ * Retrieves the status of the I2C bus, updated after each transaction
+ * \param i2c The bus
+ * \return Current bus status
+ */
+I2CStatus I2C_GetStatus(const I2C* i2c);
 
 #endif
