@@ -24,11 +24,11 @@ typedef enum _I2CCompleteStatus_
 /**
  * Transaction completion callback.
  * This callback is called from the interrupt routine.
- * \param status The status of the transaction
+ * \param success Was the transaction complete
  * \param addr The device the transaction was intended for
  * \param size The number of bytes the transaction transfered
  */
-typedef void (*I2CRequestComplete)(const I2CCompleteStatus status, const uint8_t addr, const size_t size);
+typedef void (*I2C_Complete)(const bool success, const uint8_t addr, const size_t size);
 
 /**
  * Transaction storage
@@ -45,7 +45,7 @@ typedef struct _I2CTransaction_
 		};
 	};
 	size_t             Size;     /** Number of bytes this transaction needs to transfer */
-	I2CRequestComplete Complete; /** Called when transaction finishes */
+	I2C_Complete       Complete; /** Called when transaction finishes */
 } I2CTransaction;
 
 /**
@@ -120,7 +120,7 @@ void I2C_SetBaud(I2C* i2c, const uint32_t baud);
  * \param complete Transaction done callback
  * \return True if transaction could be queued on the bus, false otherwise
  */
-bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2CRequestComplete complete);
+bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2C_Complete complete);
 
 /**
  * Read requested data. All data will only be available after the transaction is completed
@@ -140,7 +140,7 @@ size_t I2C_Read(I2C* i2c, void* data, const size_t size);
  * \param complete Transaction done callback
  * \return Number of bytes added to buffer to write
  */
-size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2CRequestComplete complete);
+size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2C_Complete complete);
 
 /**
  * Check if I2C instance is busy
