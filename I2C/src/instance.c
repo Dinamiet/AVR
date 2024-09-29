@@ -67,7 +67,7 @@ ISR(TWI_vect)
 			{
 				i2c->Status = I2C_STATUS_OK;
 				if (activeTransaction.Complete)
-					activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.Address, transfered);
+					activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.CompleteRef, transfered);
 
 				controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			}
@@ -89,7 +89,7 @@ ISR(TWI_vect)
 			{
 				i2c->Status = I2C_STATUS_OK;
 				if (activeTransaction.Complete)
-					activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.Address, transfered);
+					activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.CompleteRef, transfered);
 				controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			}
 			break;
@@ -97,7 +97,7 @@ ISR(TWI_vect)
 		case TW_MR_SLA_NACK:
 			i2c->Status = I2C_STATUS_BUS_ERROR;
 			if (activeTransaction.Complete)
-				activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.Address, transfered);
+				activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.CompleteRef, transfered);
 			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
 			break;
 
@@ -106,7 +106,7 @@ ISR(TWI_vect)
 		case TW_MT_ARB_LOST:  // Fall through
 			i2c->Status = I2C_STATUS_BUS_ERROR;
 			if (activeTransaction.Complete)
-				activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.Address, transfered);
+				activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.CompleteRef, transfered);
 			while (transfered++ < activeTransaction.Size) // Remove this transactions write data still in buffer
 				FifoBuffer_Remove(&i2c->TXBuffer, &data, sizeof(data));
 
