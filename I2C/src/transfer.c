@@ -5,7 +5,7 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
-bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2C_Complete complete, const void* ref)
+bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2C_Complete complete, const void* completeRef)
 {
 	assert(i2c != NULL);
 	assert(size > 0);
@@ -18,7 +18,7 @@ bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2C_Comp
 	transaction.Address  = addr;
 	transaction.Size     = size;
 	transaction.Complete = complete;
-	transaction.CompleteRef = ref;
+	transaction.CompleteRef = completeRef;
 
 	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
 
@@ -36,7 +36,7 @@ size_t I2C_Read(I2C* i2c, void* data, const size_t size)
 	return FifoBuffer_Remove(&i2c->RXBuffer, data, size);
 }
 
-size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2C_Complete complete, const void* ref)
+size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2C_Complete complete, const void* completeRef)
 {
 	assert(i2c != NULL);
 	assert(data != NULL);
@@ -49,7 +49,7 @@ size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t si
 	transaction.Action   = TW_WRITE;
 	transaction.Address  = addr;
 	transaction.Complete = complete;
-	transaction.CompleteRef = ref;
+	transaction.CompleteRef = completeRef;
 	transaction.Size     = FifoBuffer_Add(&i2c->TXBuffer, data, size);
 
 	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));

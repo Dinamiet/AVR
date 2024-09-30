@@ -121,10 +121,10 @@ void I2C_SetBaud(I2C* i2c, const uint32_t baud);
  * \param addr Device from which to request data
  * \param size Number of bytes to request from the device
  * \param complete Transaction done callback
- * \param ref Callback reference
+ * \param completeRef Callback reference
  * \return True if transaction could be queued on the bus, false otherwise
  */
-bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2C_Complete complete, const void* ref);
+bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2C_Complete complete, const void* completeRef);
 
 /**
  * Read requested data. All data will only be available after the transaction is completed
@@ -142,10 +142,10 @@ size_t I2C_Read(I2C* i2c, void* data, const size_t size);
  * \param data The data to write
  * \param size Number of bytes to write to the device
  * \param complete Transaction done callback
- * \param ref Callback reference
+ * \param completeRef Callback reference
  * \return Number of bytes added to buffer to write
  */
-size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2C_Complete complete, const void* ref);
+size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2C_Complete complete, const void* completeRef);
 
 /**
  * Check if I2C instance is busy
