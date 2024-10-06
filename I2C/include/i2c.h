@@ -87,9 +87,9 @@ void I2C_Deinit(I2C* i2c);
  * All Requests and Writes are queued in this buffer, executing in order.
  * \param i2c Instance to assign buffer too
  * \param buff Transaction buffer to use
- * \param num Number of transactions the buffer can hold
+ * \param size Size (Bytes) of the transaction buffer
  */
-void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, const size_t num);
+void I2C_AssignTransactionBuffer(I2C* i2c, I2CTransaction* buff, const size_t size);
 
 /**
  * Assigns a Write buffer to the I2C instance.
