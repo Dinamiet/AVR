@@ -51,7 +51,7 @@ size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t si
 	transaction.Complete    = complete;
 	transaction.CompleteRef = completeRef;
 	transaction.Size        = size;
-	if (size)
+	if (data && size)
 		transaction.Size = FifoBuffer_Add(&i2c->TXBuffer, data, size);
 
 	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
