@@ -23,7 +23,10 @@ bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2C_Comp
 	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
 
 	if (!i2c->Active)
+	{
+		i2c->Active = true;
 		i2c->Registers->Control |= 1 << TWSTA; // Issue start if not already active
+	}
 
 	return true;
 }
@@ -55,7 +58,10 @@ size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t si
 	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
 
 	if (!i2c->Active)
+	{
+		i2c->Active = true;
 		i2c->Registers->Control |= 1 << TWSTA; // Issue start if not already active
+	}
 
 	return transaction.Size;
 }
