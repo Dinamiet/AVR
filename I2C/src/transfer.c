@@ -14,10 +14,10 @@ bool I2C_Request(I2C* i2c, const uint8_t addr, const size_t size, const I2C_Comp
 	if (FifoBuffer_Free(&i2c->TransBuffer) < sizeof(transaction))
 		return false;
 
-	transaction.Action   = TW_READ;
-	transaction.Address  = addr;
-	transaction.Size     = size;
-	transaction.Complete = complete;
+	transaction.Action      = TW_READ;
+	transaction.Address     = addr;
+	transaction.Size        = size;
+	transaction.Complete    = complete;
 	transaction.CompleteRef = completeRef;
 
 	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
@@ -46,11 +46,13 @@ size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t si
 	if (FifoBuffer_Free(&i2c->TransBuffer) < sizeof(transaction))
 		return 0;
 
-	transaction.Action   = TW_WRITE;
-	transaction.Address  = addr;
-	transaction.Complete = complete;
+	transaction.Action      = TW_WRITE;
+	transaction.Address     = addr;
+	transaction.Complete    = complete;
 	transaction.CompleteRef = completeRef;
-	transaction.Size     = FifoBuffer_Add(&i2c->TXBuffer, data, size);
+	transaction.Size        = size;
+	if (size)
+		transaction.Size = FifoBuffer_Add(&i2c->TXBuffer, data, size);
 
 	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
 
