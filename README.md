@@ -1,4 +1,6 @@
-# ATMega328P
+# AVR Hardware libraries
+
+## ATMega328P
 Hardware support for ATMega328P microcontroller
 
 ## UART
