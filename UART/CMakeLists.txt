@@ -47,15 +47,15 @@ target_include_directories(
 		include
 )
 
+file(GLOB_RECURSE INCLUDE_FILES CONFIGURE_DEPENDS "include/*.h")
+file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "src/*.c")
+
 target_sources(
 	UART
 	PUBLIC
-		include/uart.h
+		${INCLUDE_FILES}
 	PRIVATE
-		src/structure.h
-		src/configure.c
-		src/instance.c
-		src/transfer.c
+		${SOURCE_FILES}
 )
 
 target_link_libraries(
