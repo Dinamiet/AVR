@@ -51,7 +51,7 @@ size_t I2C_Write(const I2CDevice* device, const void* data, const size_t size, c
 	return transaction.Size;
 }
 
-size_t I2C_WriteMem(const I2CDevice* device, const uint16_t address, void* data, const size_t size, const I2C_Complete completeCallback)
+size_t I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* data, const size_t size, const I2C_Complete completeCallback)
 {
 	I2CTransaction transaction;
 	if (FifoBuffer_Free(&device->Bus->TransBuffer) < sizeof(transaction))
@@ -91,6 +91,37 @@ bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_Complete 
 	transaction.Size        = size;
 	transaction.Complete    = completeCallback;
 	transaction.CompleteRef = device;
+
+	FifoBuffer_Add(&device->Bus->TransBuffer, &transaction, sizeof(transaction));
+
+	if (!device->Bus->Active)
+	{
+		device->Bus->Active = true;
+		device->Bus->Registers->Control |= 1 << TWSTA; // Issue start if not already active
+	}
+
+	return true;
+}
+
+bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_t size, const I2C_Complete completeCallback)
+{
+	assert(size > 0);
+
+	I2CTransaction transaction;
+	if (FifoBuffer_Free(&device->Bus->TransBuffer) < sizeof(transaction))
+		return false;
+	if (FifoBuffer_Free(&device->Bus->TXBuffer) < device->Addressing)
+		return false;
+
+	uint16_t memoryRegister = (device->Addressing == I2C_ADDRESSING_8BIT) ? address : BIG_ENDIAN_16(address);
+
+	/** TODO: Update transaction data population */
+	transaction.Action      = TW_READ;
+	transaction.Size        = size;
+	transaction.Complete    = completeCallback;
+	transaction.CompleteRef = device;
+
+	FifoBuffer_Add(&device->Bus->TXBuffer, &memoryRegister, device->Addressing);
 
 	FifoBuffer_Add(&device->Bus->TransBuffer, &transaction, sizeof(transaction));
 
