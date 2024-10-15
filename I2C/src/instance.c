@@ -36,6 +36,12 @@ I2C* I2C_GetInstance(const I2CInstance instance)
 	}
 }
 
+I2CDevice I2C_BindDevice(const void* deviceRef, I2C* bus, uint8_t deviceAddress, I2CDeviceAddressing addressing)
+{
+	I2CDevice device = {.Device = deviceRef, .Bus = bus, .Address = deviceAddress, .Addressing = addressing};
+	return device;
+}
+
 I2CStatus I2C_GetStatus(const I2C* i2c) { return i2c->Status; }
 
 ISR(TWI_vect)

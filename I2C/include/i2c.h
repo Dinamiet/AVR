@@ -91,6 +91,16 @@ typedef struct _I2C_ I2C;
 I2C* I2C_GetInstance(const I2CInstance instance);
 
 /**
+ * Binds/Links a device to a bus
+ * \param deviceRef Device structure reference, may be NULL, passed as reference to callbacks
+ * \param bus I2C instance to which the device is connected
+ * \param deviceAddress I2C device address to initiate communications
+ * \param addressing Device register addressing used (8bit/16bit)
+ * \return Device for use with related I2C functions
+ */
+I2CDevice I2C_BindDevice(const void* deviceRef, I2C* bus, uint8_t deviceAddress, I2CDeviceAddressing addressing);
+
+/**
  * Initialize and power-on I2C hardware
  * \param i2c Hardware to initialize and power-on
  */
