@@ -36,7 +36,7 @@ I2C* I2C_GetInstance(const I2CInstance instance)
 	}
 }
 
-I2CDevice I2C_BindDevice(const void* deviceRef, I2C* bus, uint8_t deviceAddress, I2CDeviceAddressing addressing)
+I2CDevice I2C_BindDevice(const void* const deviceRef, I2C* const bus, const uint8_t deviceAddress, const I2CDeviceAddressing addressing)
 {
 	I2CDevice device = {.Device = deviceRef, .Bus = bus, .Address = deviceAddress, .Addressing = addressing};
 	return device;

@@ -24,36 +24,6 @@
 typedef void (*I2C_Complete)(const bool success, const void* ref, const size_t size);
 
 /**
- * Transaction storage
- */
-typedef struct _I2CTransaction_
-{
-	union
-	{
-		uint8_t ControlByte; /** Combination of device address and action (R/W) */
-		struct
-		{
-			uint8_t Action  : 1; /** Indicates if the transaction is R/W */
-			uint8_t Address : 7; /** Device address of the transaction */
-		};
-	};
-	size_t             Size;     /** Number of bytes this transaction needs to transfer */
-	I2C_Complete       Complete; /** Called when transaction finishes */
-	const void*        CompleteRef; /** Transaction complete reference */
-} I2CTransaction;
-
-/**
- * I2C device information on the bus
- */
-typedef struct _I2CDevice_
-{
-	void*               Device;     /** Device properties, this will be used as callback reference within transaction notifications */
-	I2C*                Bus;        /** I2C bus to which the device is connected */
-	uint8_t             Address;    /** Device address */
-	I2CDeviceAddressing Addressing; /** Addressing type the devices uses - 8bit/16bit registers */
-} I2CDevice;
-
-/**
  * I2C bus status
  */
 typedef enum _I2CStatus_
@@ -84,6 +54,36 @@ typedef enum _I2CInstance_
  */
 typedef struct _I2C_ I2C;
 
+/**
+ * Transaction storage
+ */
+typedef struct _I2CTransaction_
+{
+	union
+	{
+		uint8_t ControlByte; /** Combination of device address and action (R/W) */
+		struct
+		{
+			uint8_t Action  : 1; /** Indicates if the transaction is R/W */
+			uint8_t Address : 7; /** Device address of the transaction */
+		};
+	};
+	size_t       Size;        /** Number of bytes this transaction needs to transfer */
+	I2C_Complete Complete;    /** Called when transaction finishes */
+	const void*  CompleteRef; /** Transaction complete reference */
+} I2CTransaction;
+
+/**
+ * I2C device information on the bus
+ */
+typedef struct _I2CDevice_
+{
+	I2C* const                Bus;        /** I2C bus to which the device is connected */
+	const void* const         Device;     /** Device properties, this will be used as callback reference within transaction notifications */
+	const uint8_t             Address;    /** Device address */
+	const I2CDeviceAddressing Addressing; /** Addressing type the devices uses - 8bit/16bit registers */
+} I2CDevice;
+
 /** Retrieves the provided I2C instance
  * \param instance The I2C instance to return
  * \return Reference to I2C instance
@@ -98,7 +98,7 @@ I2C* I2C_GetInstance(const I2CInstance instance);
  * \param addressing Device register addressing used (8bit/16bit)
  * \return Device for use with related I2C functions
  */
-I2CDevice I2C_BindDevice(const void* deviceRef, I2C* bus, uint8_t deviceAddress, I2CDeviceAddressing addressing);
+I2CDevice I2C_BindDevice(const void* const deviceRef, I2C* const bus, const uint8_t deviceAddress, const I2CDeviceAddressing addressing);
 
 /**
  * Initialize and power-on I2C hardware
