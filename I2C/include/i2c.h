@@ -152,7 +152,7 @@ void I2C_SetBaud(I2C* i2c, const uint32_t baud);
  * \param size Number of bytes to read from buffered data (recommended to match requested transaction size)
  * \return Number of bytes read from buffered data
  */
-size_t I2C_Read(I2C* i2c, void* data, const size_t size);
+size_t I2C_Read(const I2CDevice* device, void* data, const size_t size);
 
 /**
  * Write data to a device on the bus

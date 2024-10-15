@@ -17,16 +17,18 @@
 #define LITTLE_ENDIAN_32(x) __builtin_bswap32(x)
 #endif
 
-size_t I2C_Read(I2C* i2c, void* data, const size_t size)
+size_t I2C_Read(const I2CDevice* device, void* data, const size_t size)
 {
-	assert(i2c != NULL);
+	assert(device != NULL);
 	assert(data != NULL);
 
-	return FifoBuffer_Remove(&i2c->RXBuffer, data, size);
+	return FifoBuffer_Remove(&device->Bus->RXBuffer, data, size);
 }
 
 size_t I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_Complete completeCallback)
 {
+	assert(device != NULL);
+
 	I2CTransaction transaction;
 
 	if (FifoBuffer_Free(&device->Bus->TransBuffer) < sizeof(transaction))
@@ -53,6 +55,8 @@ size_t I2C_Write(const I2CDevice* device, const void* data, const size_t size, c
 
 size_t I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* data, const size_t size, const I2C_Complete completeCallback)
 {
+	assert(device != NULL);
+
 	I2CTransaction transaction;
 	if (FifoBuffer_Free(&device->Bus->TransBuffer) < sizeof(transaction))
 		return 0;
@@ -80,6 +84,7 @@ size_t I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void*
 
 bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_Complete completeCallback)
 {
+	assert(device != NULL);
 	assert(size > 0);
 
 	I2CTransaction transaction;
@@ -105,6 +110,7 @@ bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_Complete 
 
 bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_t size, const I2C_Complete completeCallback)
 {
+	assert(device != NULL);
 	assert(size > 0);
 
 	I2CTransaction transaction;
