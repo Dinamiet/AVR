@@ -165,6 +165,17 @@ size_t I2C_Read(I2C* i2c, void* data, const size_t size);
 size_t I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_Complete completeCallback);
 
 /**
+ * Write data to a specific memory address of a device on the bus
+ * \param device Device to write to
+ * \param address Device memory address to write data to
+ * \param data The data to write
+ * \param size Number of bytes to write
+ * \param completeCallback Called when transaction completes
+ * \return Number of bytes added to buffer to write
+ */
+size_t I2C_WriteMem(const I2CDevice* device, const uint16_t address, void* data, const size_t size, const I2C_Complete completeCallback);
+
+/**
  * Issue a Request for data (Read) on the I2C bus
  * \param device Devices from which to request data
  * \param size Number of bytes to request
