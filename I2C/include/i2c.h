@@ -167,15 +167,13 @@ size_t I2C_Read(I2C* i2c, void* data, const size_t size);
 
 /**
  * Write data to a device on the bus
- * \param i2c Bus to write on
- * \param addr Device to write to
+ * \param device Device to write to
  * \param data The data to write
- * \param size Number of bytes to write to the device
- * \param complete Transaction done callback
- * \param completeRef Callback reference
+ * \param size Number of bytes to write
+ * \param completeCallback Called when transaction completes
  * \return Number of bytes added to buffer to write
  */
-size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2C_Complete complete, const void* completeRef);
+size_t I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_Complete completeCallback);
 
 /**
  * Check if I2C instance is busy

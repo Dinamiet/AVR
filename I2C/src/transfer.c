@@ -39,28 +39,27 @@ size_t I2C_Read(I2C* i2c, void* data, const size_t size)
 	return FifoBuffer_Remove(&i2c->RXBuffer, data, size);
 }
 
-size_t I2C_Write(I2C* i2c, const uint8_t addr, const void* data, const size_t size, const I2C_Complete complete, const void* completeRef)
+size_t I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_Complete completeCallback)
 {
-	assert(i2c != NULL);
-	assert(data != NULL);
-
 	I2CTransaction transaction;
 
-	if (FifoBuffer_Free(&i2c->TransBuffer) < sizeof(transaction))
+	if (FifoBuffer_Free(&device->Bus->TransBuffer) < sizeof(transaction))
+		return 0;
+	if (FifoBuffer_Free(&device->Bus->TXBuffer) < sizeof(size))
 		return 0;
 
+	/** TODO: Update transaction data population */
 	transaction.Action      = TW_WRITE;
-	transaction.Address     = addr;
-	transaction.Complete    = complete;
-	transaction.CompleteRef = completeRef;
-	transaction.Size        = FifoBuffer_Add(&i2c->TXBuffer, data, size);
+	transaction.Complete    = completeCallback;
+	transaction.CompleteRef = device;
+	transaction.Size        = FifoBuffer_Add(&device->Bus->TXBuffer, data, size);
 
-	FifoBuffer_Add(&i2c->TransBuffer, &transaction, sizeof(transaction));
+	FifoBuffer_Add(&device->Bus->TransBuffer, &transaction, sizeof(transaction));
 
-	if (!i2c->Active)
+	if (!device->Bus->Active)
 	{
-		i2c->Active = true;
-		i2c->Registers->Control |= 1 << TWSTA; // Issue start if not already active
+		device->Bus->Active = true;
+		device->Bus->Registers->Control |= 1 << TWSTA; // Issue start if not already active
 	}
 
 	return transaction.Size;
