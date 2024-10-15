@@ -43,6 +43,17 @@ typedef struct _I2CTransaction_
 } I2CTransaction;
 
 /**
+ * I2C device information on the bus
+ */
+typedef struct _I2CDevice_
+{
+	void*               Device;     /** Device properties, this will be used as callback reference within transaction notifications */
+	I2C*                Bus;        /** I2C bus to which the device is connected */
+	uint8_t             Address;    /** Device address */
+	I2CDeviceAddressing Addressing; /** Addressing type the devices uses - 8bit/16bit registers */
+} I2CDevice;
+
+/**
  * I2C bus status
  */
 typedef enum _I2CStatus_
@@ -50,6 +61,15 @@ typedef enum _I2CStatus_
 	I2C_STATUS_OK,        /** Ok */
 	I2C_STATUS_BUS_ERROR, /** Bus error */
 } I2CStatus;
+
+/**
+ * Different I2C device addressing modes
+ */
+typedef enum _I2CDeviceAddressing_
+{
+	I2C_ADDRESSING_8BIT  = 1, /** 8bit device registers */
+	I2C_ADDRESSING_16BIT = 2  /** 16bit device registers */
+} I2CDeviceAddressing;
 
 /**
  * Available I2C instances
