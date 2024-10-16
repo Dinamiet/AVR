@@ -14,7 +14,7 @@ static uint8_t finalizeTransaction(I2CTransaction* transaction, I2CStatus status
 	uint8_t controlValue             = (1 << TWSTO);
 	transaction->Device->Bus->Status = status;
 	if (transaction->Complete)
-		transaction->Complete(transaction->Device, status == I2C_STATUS_OK);
+		transaction->Complete(transaction->Device->DeviceRef, status == I2C_STATUS_OK);
 	if (FifoBuffer_Empty(&transaction->Device->Bus->TransBuffer))
 		transaction->Device->Bus->Active = false;
 	else
@@ -35,13 +35,20 @@ I2C* I2C_GetInstance(const I2CInstance instance)
 	}
 }
 
-I2CDevice I2C_BindDevice(const void* const deviceRef, I2C* const bus, const uint8_t deviceAddress, const I2CDeviceAddressing addressing)
+I2CDevice I2C_BindDevice(void* deviceRef, I2C* bus, const uint8_t deviceAddress, const I2CDeviceAddressing addressing)
 {
-	I2CDevice device = {.Device = deviceRef, .Bus = bus, .Address = deviceAddress, .Addressing = addressing};
+	assert(bus != NULL);
+
+	I2CDevice device = {.DeviceRef = deviceRef, .Bus = bus, .Address = deviceAddress, .Addressing = addressing};
 	return device;
 }
 
-I2CStatus I2C_GetStatus(const I2C* i2c) { return i2c->Status; }
+I2CStatus I2C_GetStatus(const I2CDevice* device)
+{
+	assert(device != NULL);
+
+	return device->Bus->Status;
+}
 
 ISR(TWI_vect)
 {
@@ -88,21 +95,21 @@ ISR(TWI_vect)
 		case TW_MR_DATA_ACK: // Fall through
 		case TW_MR_DATA_NACK:
 			data = i2c->Registers->Data; // Force read
-			FifoBuffer_Add(&i2c->RXBuffer, &data, sizeof(data));
+			if (activeTransaction.RequestSize)
+				FifoBuffer_Add(&i2c->RXBuffer, &data, sizeof(data));
+
 			--activeTransaction.RequestSize;
-			if (activeTransaction.RequestSize == 1)       // next receive is last one
-				controlValue &= ~(1 << TWEA);             // NACK to indicate end
+			if (activeTransaction.RequestSize == 1) // next receive is last one
+				controlValue &= ~(1 << TWEA);       // NACK to indicate end
 			else if (!activeTransaction.RequestSize)
-			{
 				controlValue |= finalizeTransaction(&activeTransaction, I2C_STATUS_OK);
-			}
 			break;
 
 		case TW_MR_SLA_NACK:
 			controlValue |= finalizeTransaction(&activeTransaction, I2C_STATUS_NACK);
 			break;
 
-		case TW_MT_SLA_NACK:  // Fall through
+		case TW_MT_SLA_NACK: // Fall through
 		case TW_MT_DATA_NACK:
 			FifoBuffer_Remove(&activeTransaction.Device->Bus->TXBuffer, NULL, activeTransaction.WriteSize);
 			controlValue |= finalizeTransaction(&activeTransaction, I2C_STATUS_NACK);

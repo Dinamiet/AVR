@@ -20,7 +20,6 @@
 size_t I2C_Read(const I2CDevice* device, void* data, const size_t size)
 {
 	assert(device != NULL);
-	assert(data != NULL);
 
 	return FifoBuffer_Remove(&device->Bus->RXBuffer, data, size);
 }
@@ -134,9 +133,9 @@ bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_
 	return true;
 }
 
-bool I2C_IsBusy(const I2C* i2c)
+bool I2C_IsBusy(const I2CDevice* device)
 {
-	assert(i2c != NULL);
+	assert(device != NULL);
 
-	return i2c->Active;
+	return device->Bus->Active;
 }
