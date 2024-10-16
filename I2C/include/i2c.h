@@ -29,9 +29,8 @@ typedef struct _I2CDevice_ I2CDevice;
  * This callback is called from the interrupt routine.
  * \param success Was the transaction complete
  * \param device I2C device on which transaction was done
- * \param size The number of bytes the transaction transfered
  */
-typedef void (*I2C_Complete)(const bool success, const I2CDevice* device, const size_t size);
+typedef void (*I2C_Complete)(const void* device, const bool success);
 
 /**
  * I2C bus status
