@@ -15,13 +15,23 @@
 #include <stdint.h>
 
 /**
+ * I2C
+ */
+typedef struct _I2C_ I2C;
+
+/**
+ * I2C device information on the bus
+ */
+typedef struct _I2CDevice_ I2CDevice;
+
+/**
  * Transaction completion callback.
  * This callback is called from the interrupt routine.
  * \param success Was the transaction complete
- * \param ref Reference provided with completion callback
+ * \param device I2C device on which transaction was done
  * \param size The number of bytes the transaction transfered
  */
-typedef void (*I2C_Complete)(const bool success, const void* ref, const size_t size);
+typedef void (*I2C_Complete)(const bool success, const I2CDevice* device, const size_t size);
 
 /**
  * I2C bus status
@@ -48,34 +58,17 @@ typedef enum _I2CInstance_
 {
 	I2C0, /** I2C */
 } I2CInstance;
-
-/**
- * I2C
- */
-typedef struct _I2C_ I2C;
-
 /**
  * Transaction storage
  */
 typedef struct _I2CTransaction_
 {
-	union
-	{
-		uint8_t ControlByte; /** Combination of device address and action (R/W) */
-		struct
-		{
-			uint8_t Action  : 1; /** Indicates if the transaction is R/W */
-			uint8_t Address : 7; /** Device address of the transaction */
-		};
-	};
-	size_t       Size;        /** Number of bytes this transaction needs to transfer */
-	I2C_Complete Complete;    /** Called when transaction finishes */
-	const void*  CompleteRef; /** Transaction complete reference */
+	const I2CDevice* Device;      /** Device this transaction belongs to */
+	I2C_Complete     Complete;    /** Transaction complete callback */
+	size_t           WriteSize;   /** Write command number of bytes */
+	size_t           RequestSize; /** Request/read number of bytes */
 } I2CTransaction;
 
-/**
- * I2C device information on the bus
- */
 typedef struct _I2CDevice_
 {
 	I2C* const                Bus;        /** I2C bus to which the device is connected */
@@ -160,9 +153,9 @@ size_t I2C_Read(const I2CDevice* device, void* data, const size_t size);
  * \param data The data to write
  * \param size Number of bytes to write
  * \param completeCallback Called when transaction completes
- * \return Number of bytes added to buffer to write
+ * \return True if transaction could be added to transaction list
  */
-size_t I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_Complete completeCallback);
+bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_Complete completeCallback);
 
 /**
  * Write data to a specific memory address of a device on the bus
@@ -171,9 +164,9 @@ size_t I2C_Write(const I2CDevice* device, const void* data, const size_t size, c
  * \param data The data to write
  * \param size Number of bytes to write
  * \param completeCallback Called when transaction completes
- * \return Number of bytes added to buffer to write
+ * \return True if transaction could be added to transaction list
  */
-size_t I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* data, const size_t size, const I2C_Complete completeCallback);
+bool I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* data, const size_t size, const I2C_Complete completeCallback);
 
 /**
  * Issue a Request for data (Read) on the I2C bus
