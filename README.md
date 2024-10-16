@@ -11,3 +11,8 @@ In this mode, each read and write will consume 2 bytes (`uint16_t`), irrespectiv
 
 ## GPIO
 GPIO driver with support for the external interrupt interface
+
+## I2C
+Non-blocking I2C master mode
+
+7-bit device addresses, supporting both 8bit and 16bit device registers
