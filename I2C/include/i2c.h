@@ -37,8 +37,9 @@ typedef void (*I2C_Complete)(const void* device, const bool success);
  */
 typedef enum _I2CStatus_
 {
-	I2C_STATUS_OK,        /** Ok */
-	I2C_STATUS_BUS_ERROR, /** Bus error */
+	I2C_STATUS_OK,       /** Ok */
+	I2C_STATUS_NACK,     /** Device did not acknowledge */
+	I2C_STATUS_ARB_LOST, /** Bus arbitration lost */
 } I2CStatus;
 
 /**
