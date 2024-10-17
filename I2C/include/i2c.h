@@ -59,10 +59,10 @@ typedef struct _I2C_ I2C;
  */
 typedef struct _I2CDevice_
 {
-	I2C* const                Bus;        /** I2C bus to which the device is connected */
-	void* const               DeviceRef;     /** Device properties, this will be used as callback reference within transaction notifications */
-	const uint8_t             Address;    /** Device address */
-	const I2CDeviceAddressing Addressing; /** Addressing type the devices uses - 8bit/16bit registers */
+	I2C*                Bus;        /** I2C bus to which the device is connected */
+	void*               DeviceRef;  /** Device properties, this will be used as callback reference within transaction notifications */
+	uint8_t             Address;    /** Device address */
+	I2CDeviceAddressing Addressing; /** Addressing type the devices uses - 8bit/16bit registers */
 } I2CDevice;
 
 /** Retrieves the provided I2C instance
