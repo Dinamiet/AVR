@@ -5,23 +5,22 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
-static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, size_t* transfer);
-
 static I2C i2c0 = {.Registers = (I2CMemory*)&TWBR, .PWR = &PRR};
 
-static uint8_t nextTransaction(I2C* i2c, I2CTransaction* transaction, size_t* transfer)
+static uint8_t finalizeTransaction(I2CTransaction* transaction, I2CStatus status);
+
+static uint8_t finalizeTransaction(I2CTransaction* transaction, I2CStatus status)
 {
-	transaction->Size = *transfer = 0;
-	if (FifoBuffer_Remove(&i2c->TransBuffer, transaction, sizeof(*transaction))) // Next transaction available
-	{
-		i2c->Active = true;
-		return 1 << TWSTA; // Issue start/restart
-	}
+	uint8_t controlValue             = (1 << TWSTO);
+	transaction->Device->Bus->Status = status;
+	if (transaction->Complete)
+		transaction->Complete(transaction->Device->DeviceRef, status == I2C_STATUS_OK);
+	if (FifoBuffer_Empty(&transaction->Device->Bus->TransBuffer))
+		transaction->Device->Bus->Active = false;
 	else
-	{
-		i2c->Active = false;
-		return 1 << TWSTO; // Release bus, done
-	}
+		controlValue |= (1 << TWSTA);
+
+	return controlValue;
 }
 
 I2C* I2C_GetInstance(const I2CInstance instance)
@@ -36,86 +35,94 @@ I2C* I2C_GetInstance(const I2CInstance instance)
 	}
 }
 
-I2CStatus I2C_GetStatus(const I2C* i2c) { return i2c->Status; }
+I2CDevice I2C_BindDevice(void* deviceRef, I2C* bus, const uint8_t deviceAddress, const I2CDeviceAddressing addressing)
+{
+	assert(bus != NULL);
+
+	I2CDevice device = {.DeviceRef = deviceRef, .Bus = bus, .Address = deviceAddress, .Addressing = addressing};
+	return device;
+}
+
+I2CStatus I2C_GetStatus(const I2CDevice* device)
+{
+	assert(device != NULL);
+
+	return device->Bus->Status;
+}
 
 ISR(TWI_vect)
 {
 	I2C*                  i2c          = I2C_GetInstance(I2C0);
 	uint8_t               controlValue = i2c->Registers->Control;
 	uint8_t               data;
-	static size_t         transfered = 0;
 	static I2CTransaction activeTransaction;
 
 	switch (TW_STATUS)
 	{
 		case TW_START:
-			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
+			FifoBuffer_Remove(&i2c->TransBuffer, &activeTransaction, sizeof(activeTransaction));
 			// Fall through
 		case TW_REP_START:
 			controlValue &= ~(1 << TWSTA); // Clear start
-			i2c->Registers->Data = activeTransaction.ControlByte;
+			data = activeTransaction.Device->Address << 1;
+			if (activeTransaction.RequestSize && !activeTransaction.WriteSize)
+				data |= TW_READ;
+			i2c->Registers->Data = data;
 			break;
 
 		case TW_MT_SLA_ACK: // Fall through
 		case TW_MT_DATA_ACK:
-			if (transfered < activeTransaction.Size)
+			if (activeTransaction.WriteSize)
 			{
-				transfered += FifoBuffer_Remove(&i2c->TXBuffer, &data, sizeof(data));
+				activeTransaction.WriteSize -= FifoBuffer_Remove(&i2c->TXBuffer, &data, sizeof(data));
 				i2c->Registers->Data = data;
 			}
-			else // Done with current transaction no more data to write
+			else if (activeTransaction.RequestSize) // Repeated start for request
 			{
-				i2c->Status = I2C_STATUS_OK;
-				if (activeTransaction.Complete)
-					activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.CompleteRef, transfered);
-
-				controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
+				controlValue |= (1 << TWSTA);
+			}
+			else // Done with transaction
+			{
+				controlValue |= finalizeTransaction(&activeTransaction, I2C_STATUS_OK);
 			}
 			break;
 
 		case TW_MR_SLA_ACK:
-			if (activeTransaction.Size > 1) // Enable ACK when receiving more than 1 byte
+			if (activeTransaction.RequestSize > 1) // Enable ACK when receiving more than 1 byte
 				controlValue |= 1 << TWEA;
 			break;
 
 		case TW_MR_DATA_ACK: // Fall through
 		case TW_MR_DATA_NACK:
 			data = i2c->Registers->Data; // Force read
-			FifoBuffer_Add(&i2c->RXBuffer, &data, sizeof(data));
-			transfered++;
-			if (activeTransaction.Size - transfered == 1) // next receive is last one
-				controlValue &= ~(1 << TWEA);             // NACK to indicate end
-			else if (activeTransaction.Size == transfered)
-			{
-				i2c->Status = I2C_STATUS_OK;
-				if (activeTransaction.Complete)
-					activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.CompleteRef, transfered);
-				controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
-			}
+			if (activeTransaction.RequestSize)
+				FifoBuffer_Add(&i2c->RXBuffer, &data, sizeof(data));
+
+			--activeTransaction.RequestSize;
+			if (activeTransaction.RequestSize == 1) // next receive is last one
+				controlValue &= ~(1 << TWEA);       // NACK to indicate end
+			else if (!activeTransaction.RequestSize)
+				controlValue |= finalizeTransaction(&activeTransaction, I2C_STATUS_OK);
 			break;
 
 		case TW_MR_SLA_NACK:
-			i2c->Status = I2C_STATUS_BUS_ERROR;
-			if (activeTransaction.Complete)
-				activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.CompleteRef, transfered);
-			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
+			controlValue |= finalizeTransaction(&activeTransaction, I2C_STATUS_NACK);
 			break;
 
-		case TW_MT_SLA_NACK:  // Fall through
-		case TW_MT_DATA_NACK: // Fall through
-		case TW_MT_ARB_LOST:  // Fall through
-			i2c->Status = I2C_STATUS_BUS_ERROR;
-			if (activeTransaction.Complete)
-				activeTransaction.Complete(i2c->Status == I2C_STATUS_OK, activeTransaction.CompleteRef, transfered);
-			while (transfered++ < activeTransaction.Size) // Remove this transactions write data still in buffer
-				FifoBuffer_Remove(&i2c->TXBuffer, &data, sizeof(data));
+		case TW_MT_SLA_NACK: // Fall through
+		case TW_MT_DATA_NACK:
+			FifoBuffer_Remove(&activeTransaction.Device->Bus->TXBuffer, NULL, activeTransaction.WriteSize);
+			controlValue |= finalizeTransaction(&activeTransaction, I2C_STATUS_NACK);
+			break;
 
-			controlValue |= nextTransaction(i2c, &activeTransaction, &transfered);
+		case TW_MT_ARB_LOST:
+			FifoBuffer_Remove(&activeTransaction.Device->Bus->TXBuffer, NULL, activeTransaction.WriteSize);
+			controlValue |= finalizeTransaction(&activeTransaction, I2C_STATUS_ARB_LOST);
+			controlValue &= ~(1 << TWSTO); // Bus released when arbitration is lost, no need to stop
 			break;
 
 		default: // Should never enter here, stop I2C should this happen
 			assert(false);
-			controlValue |= 1 << TWSTO; // release interface
 			i2c->Active = false;
 			break;
 	}

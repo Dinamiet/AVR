@@ -26,4 +26,12 @@ typedef struct _I2C_
 	I2CStatus               Status;
 } I2C;
 
+typedef struct _I2CTransaction_
+{
+	const I2CDevice* Device;
+	I2C_Complete     Complete;
+	size_t           WriteSize;
+	size_t           RequestSize;
+} I2CTransaction;
+
 #endif
