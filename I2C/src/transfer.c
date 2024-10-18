@@ -21,19 +21,29 @@ size_t I2C_Read(const I2CDevice* device, void* data, const size_t size)
 {
 	assert(device != NULL);
 
-	return FifoBuffer_Remove(&device->Bus->RXBuffer, data, size);
+	cli(); // Have to disable global interrupts - cant write I2C Control register to disable only I2C interrupt without messing with the I2C bus
+	size_t retVal = FifoBuffer_Remove(&device->Bus->RXBuffer, data, size);
+	sei(); // Re-enable global interrupts
+	return retVal;
 }
 
 bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_Complete completeCallback)
 {
 	assert(device != NULL);
 
-	I2CTransaction transaction;
+	cli(); // Have to disable global interrupts - cant write I2C Control register to disable only I2C interrupt without messing with the I2C bus
 
+	I2CTransaction transaction;
 	if (FifoBuffer_Free(&device->Bus->TransBuffer) < sizeof(transaction))
+	{
+		sei(); // Re-enable global interrupts
 		return false;
+	}
 	if (FifoBuffer_Free(&device->Bus->TXBuffer) < size)
+	{
+		sei(); // Re-enable global interrupts
 		return false;
+	}
 
 	transaction.Device      = device;
 	transaction.Complete    = completeCallback;
@@ -41,6 +51,8 @@ bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, con
 	transaction.RequestSize = 0;
 
 	FifoBuffer_Add(&device->Bus->TransBuffer, &transaction, sizeof(transaction));
+
+	sei(); // Re-enable global interrupts
 
 	if (!device->Bus->Active)
 	{
@@ -55,11 +67,19 @@ bool I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* d
 {
 	assert(device != NULL);
 
+	cli(); // Have to disable global interrupts - cant write I2C Control register to disable only I2C interrupt without messing with the I2C bus
+
 	I2CTransaction transaction;
 	if (FifoBuffer_Free(&device->Bus->TransBuffer) < sizeof(transaction))
+	{
+		sei(); // Re-enable global interrupts
 		return false;
+	}
 	if (FifoBuffer_Free(&device->Bus->TXBuffer) < size + device->Addressing)
+	{
+		sei(); // Re-enable global interrupts
 		return false;
+	}
 
 	uint16_t memoryRegister = (device->Addressing == I2C_ADDRESSING_8BIT) ? address : BIG_ENDIAN_16(address);
 
@@ -70,6 +90,9 @@ bool I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* d
 	transaction.RequestSize = 0;
 
 	FifoBuffer_Add(&device->Bus->TransBuffer, &transaction, sizeof(transaction));
+
+	sei(); // Re-enable global interrupts
+
 	if (!device->Bus->Active)
 	{
 		device->Bus->Active = true;
@@ -84,9 +107,14 @@ bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_Complete 
 	assert(device != NULL);
 	assert(size > 0);
 
+	cli(); // Have to disable global interrupts - cant write I2C Control register to disable only I2C interrupt without messing with the I2C bus
+
 	I2CTransaction transaction;
 	if (FifoBuffer_Free(&device->Bus->TransBuffer) < sizeof(transaction))
+	{
+		sei(); // Re-enable global interrupts
 		return false;
+	}
 
 	transaction.Device      = device;
 	transaction.Complete    = completeCallback;
@@ -94,6 +122,8 @@ bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_Complete 
 	transaction.WriteSize   = 0;
 
 	FifoBuffer_Add(&device->Bus->TransBuffer, &transaction, sizeof(transaction));
+
+	sei(); // Re-enable global interrupts
 
 	if (!device->Bus->Active)
 	{
@@ -109,11 +139,19 @@ bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_
 	assert(device != NULL);
 	assert(size > 0);
 
+	cli(); // Have to disable global interrupts - cant write I2C Control register to disable only I2C interrupt without messing with the I2C bus
+
 	I2CTransaction transaction;
 	if (FifoBuffer_Free(&device->Bus->TransBuffer) < sizeof(transaction))
+	{
+		sei(); // Re-enable global interrupts
 		return false;
+	}
 	if (FifoBuffer_Free(&device->Bus->TXBuffer) < device->Addressing)
+	{
+		sei(); // Re-enable global interrupts
 		return false;
+	}
 
 	uint16_t memoryRegister = (device->Addressing == I2C_ADDRESSING_8BIT) ? address : BIG_ENDIAN_16(address);
 
@@ -123,6 +161,8 @@ bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_
 	transaction.WriteSize   = FifoBuffer_Add(&device->Bus->TXBuffer, &memoryRegister, device->Addressing);
 
 	FifoBuffer_Add(&device->Bus->TransBuffer, &transaction, sizeof(transaction));
+
+	sei(); // Re-enable global interrupts
 
 	if (!device->Bus->Active)
 	{
