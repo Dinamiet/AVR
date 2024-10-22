@@ -43,6 +43,7 @@ void I2C_AssignWriteBuffer(I2C* i2c, void* buff, const size_t size)
 void I2C_AssignTransactionBuffer(I2C* i2c, void* buff, const size_t size)
 {
 	assert(i2c != NULL);
+	assert(size >= sizeof(I2CTransaction));
 
 	FifoBuffer_Init(&i2c->TransBuffer, buff, size);
 }
