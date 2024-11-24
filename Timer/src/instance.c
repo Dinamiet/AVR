@@ -20,6 +20,6 @@ Timer* Timer_GetInstance(const TimerInstance instance)
 
 ISR(TIMER2_OVF_vect)
 {
-	if (timer0.RollOverHandler)
-		timer0.RollOverHandler();
+	if (timer0.RollOver)
+		timer0.RollOver();
 }

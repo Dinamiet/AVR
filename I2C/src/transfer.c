@@ -27,7 +27,7 @@ size_t I2C_Read(const I2CDevice* device, void* data, const size_t size)
 	return retVal;
 }
 
-bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_Complete completeCallback)
+bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_CompleteHandler complete_handler)
 {
 	assert(device != NULL);
 
@@ -46,7 +46,7 @@ bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, con
 	}
 
 	transaction.Device      = device;
-	transaction.Complete    = completeCallback;
+	transaction.Complete    = complete_handler;
 	transaction.WriteSize   = FifoBuffer_Add(&device->Bus->TXBuffer, data, size);
 	transaction.RequestSize = 0;
 
@@ -63,7 +63,7 @@ bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, con
 	return true;
 }
 
-bool I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* data, const size_t size, const I2C_Complete completeCallback)
+bool I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* data, const size_t size, const I2C_CompleteHandler complete_handler)
 {
 	assert(device != NULL);
 
@@ -84,7 +84,7 @@ bool I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* d
 	uint16_t memoryRegister = (device->Addressing == I2C_ADDRESSING_8BIT) ? address : BIG_ENDIAN_16(address);
 
 	transaction.Device    = device;
-	transaction.Complete  = completeCallback;
+	transaction.Complete  = complete_handler;
 	transaction.WriteSize = FifoBuffer_Add(&device->Bus->TXBuffer, &memoryRegister, device->Addressing);
 	transaction.WriteSize += FifoBuffer_Add(&device->Bus->TXBuffer, data, size);
 	transaction.RequestSize = 0;
@@ -102,7 +102,7 @@ bool I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* d
 	return true;
 }
 
-bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_Complete completeCallback)
+bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_CompleteHandler complete_handler)
 {
 	assert(device != NULL);
 	assert(size > 0);
@@ -117,7 +117,7 @@ bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_Complete 
 	}
 
 	transaction.Device      = device;
-	transaction.Complete    = completeCallback;
+	transaction.Complete    = complete_handler;
 	transaction.RequestSize = size;
 	transaction.WriteSize   = 0;
 
@@ -134,7 +134,7 @@ bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_Complete 
 	return true;
 }
 
-bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_t size, const I2C_Complete completeCallback)
+bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_t size, const I2C_CompleteHandler complete_handler)
 {
 	assert(device != NULL);
 	assert(size > 0);
@@ -156,7 +156,7 @@ bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_
 	uint16_t memoryRegister = (device->Addressing == I2C_ADDRESSING_8BIT) ? address : BIG_ENDIAN_16(address);
 
 	transaction.Device      = device;
-	transaction.Complete    = completeCallback;
+	transaction.Complete    = complete_handler;
 	transaction.RequestSize = size;
 	transaction.WriteSize   = FifoBuffer_Add(&device->Bus->TXBuffer, &memoryRegister, device->Addressing);
 

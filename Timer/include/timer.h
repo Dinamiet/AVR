@@ -49,7 +49,7 @@ typedef enum _TimerInstance_
 /**
  * Interrupt handler for timer interrupts
  */
-typedef void (*TimerInterrupt)(void);
+typedef void (*TimerInterruptHandler)(void);
 
 /**
  * Timer
@@ -88,9 +88,9 @@ void Timer_Configure(Timer* timer, const TimerPrescaler prescaler);
  * Enable a certain timer interrupt
  * \param timer The timer which interrupt should be enabled
  * \param type The type of interrupt to enable
- * \param handler The function that will be called when the interrupt occurs
+ * \param isr_handler The function that will be called when the interrupt occurs
  */
-void Timer_EnableInterrupt(Timer* timer, const TimerInterruptType type, const TimerInterrupt handler);
+void Timer_EnableInterrupt(Timer* timer, const TimerInterruptType type, const TimerInterruptHandler isr_handler);
 
 /**
  * Start timer

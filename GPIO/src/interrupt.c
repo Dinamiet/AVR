@@ -6,19 +6,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-static GPIO_InterruptFunction isr0 = NULL;
-static GPIO_InterruptFunction isr1 = NULL;
+static GPIO_InterruptHandler isr0 = NULL;
+static GPIO_InterruptHandler isr1 = NULL;
 
-void GPIO_EnableIRQ(const GPIOInstance instance, const GPIOInterruptTrigger trigger, const GPIO_InterruptFunction isr)
+void GPIO_EnableIRQ(const GPIOInstance instance, const GPIOInterruptTrigger trigger, const GPIO_InterruptHandler isr_handler)
 {
 	assert(trigger <= 0x03);
-	assert(isr != NULL);
+	assert(isr_handler != NULL);
 
 	uint8_t value = EICRA;
 	switch (instance)
 	{
 		case GPIO_ISR0:
-			isr0 = isr;
+			isr0 = isr_handler;
 			value &= ~((1 << ISC01) | (1 << ISC00));
 			value |= trigger;
 			EICRA = value;
@@ -26,7 +26,7 @@ void GPIO_EnableIRQ(const GPIOInstance instance, const GPIOInterruptTrigger trig
 			break;
 
 		case GPIO_ISR1:
-			isr1 = isr;
+			isr1 = isr_handler;
 			value &= ~((1 << ISC11) | (1 << ISC10));
 			value |= trigger << 2;
 			EICRA = value;

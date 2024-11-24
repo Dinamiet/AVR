@@ -20,7 +20,7 @@
  * \param device I2C device on which transaction was done
  * \param success Was the transaction successfull
  */
-typedef void (*I2C_Complete)(void* device, const bool success);
+typedef void (*I2C_CompleteHandler)(void* device, const bool success);
 
 /**
  * I2C bus status
@@ -140,10 +140,10 @@ size_t I2C_Read(const I2CDevice* device, void* data, const size_t size);
  * \param device Device to write to
  * \param data The data to write
  * \param size Number of bytes to write
- * \param completeCallback Called when transaction completes
+ * \param complete_handler Called when transaction completes
  * \return True if transaction could be added to transaction list
  */
-bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_Complete completeCallback);
+bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, const I2C_CompleteHandler complete_handler);
 
 /**
  * Write data to a specific memory address of a device on the bus
@@ -151,29 +151,29 @@ bool I2C_Write(const I2CDevice* device, const void* data, const size_t size, con
  * \param address Device memory address to write data to
  * \param data The data to write
  * \param size Number of bytes to write
- * \param completeCallback Called when transaction completes
+ * \param complete_handler Called when transaction completes
  * \return True if transaction could be added to transaction list
  */
-bool I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* data, const size_t size, const I2C_Complete completeCallback);
+bool I2C_WriteMem(const I2CDevice* device, const uint16_t address, const void* data, const size_t size, const I2C_CompleteHandler complete_handler);
 
 /**
  * Issue a Request for data (Read) on the I2C bus
  * \param device Devices from which to request data
  * \param size Number of bytes to request/read
- * \param completeCallback Called when transaction completes
+ * \param complete_handler Called when transaction completes
  * \return True if transaction could be queued on the bus, false otherwise
  */
-bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_Complete completeCallback);
+bool I2C_Request(const I2CDevice* device, const size_t size, const I2C_CompleteHandler complete_handler);
 
 /**
  * Issue a Request for data (Read) from a specific memory address
  * \param device Devices from which to request data
  * \param address Device memory address to read from
  * \param size Number of bytes to request/read
- * \param completeCallback Called when transaction completes
+ * \param complete_handler Called when transaction completes
  * \return True if transaction could be queued on the bus, false otherwise
  */
-bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_t size, const I2C_Complete completeCallback);
+bool I2C_RequestMem(const I2CDevice* device, const uint16_t address, const size_t size, const I2C_CompleteHandler complete_handler);
 
 /**
  * Check if Device's I2C bus is busy

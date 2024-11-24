@@ -42,11 +42,11 @@ void Timer_Configure(Timer* timer, const TimerPrescaler prescaler)
 		Timer_Start(timer); // Start timer to set updated prescaler values if already running
 }
 
-void Timer_EnableInterrupt(Timer* timer, const TimerInterruptType type, const TimerInterrupt handler)
+void Timer_EnableInterrupt(Timer* timer, const TimerInterruptType type, const TimerInterruptHandler isr_handler)
 {
 	assert(timer != NULL);
-	assert(handler != NULL);
+	assert(isr_handler != NULL);
 
-	timer->RollOverHandler = handler;
+	timer->RollOver = isr_handler;
 	*timer->InterruptMask |= type;
 }

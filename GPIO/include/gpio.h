@@ -42,7 +42,7 @@ typedef enum _GPIOInterruptTrigger_
 } GPIOInterruptTrigger;
 
 /** External Interrupt callback function */
-typedef void (*GPIO_InterruptFunction)();
+typedef void (*GPIO_InterruptHandler)();
 
 /**
  * GPIO
@@ -132,9 +132,9 @@ void GPIO_TogglePin(GPIO* gpio, const uint8_t pinNum);
  * Enable external interrupt
  * \param instance External interrupt instance to enable
  * \param trigger Trigger mode to assign to the interrupt
- * \param isr Interrupt service routine callback function
+ * \param isr_handler Interrupt service routine callback function
  */
-void GPIO_EnableIRQ(const GPIOInstance instance, const GPIOInterruptTrigger trigger, const GPIO_InterruptFunction isr);
+void GPIO_EnableIRQ(const GPIOInstance instance, const GPIOInterruptTrigger trigger, const GPIO_InterruptHandler isr_handler);
 
 /**
  * Disable external interrupt

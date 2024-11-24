@@ -21,7 +21,7 @@ typedef struct _Timer_
 	volatile TimerMemory* const Registers;
 	volatile uint8_t* const     PWR;
 	volatile uint8_t* const     InterruptMask;
-	TimerInterrupt              RollOverHandler;
+	TimerInterruptHandler       RollOver;
 	uint8_t                     Prescaler;
 } Timer;
 
